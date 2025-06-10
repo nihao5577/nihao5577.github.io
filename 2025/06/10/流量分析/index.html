@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="应急响应,流量分析," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="wireshark使用方法过滤:ip过滤12345678ip.addr &#x3D; ip地址ip.addr &#x3D; 192.168.116.138 只显示ip为192.168.116.138有关的数据流ip.src &#x3D;&#x3D; 源ip地址ip.src &#x3D; 192.168.116.138 只显示源IP地址为192.168.116.138的数据流ip.dst &#x3D;&#x3D; 目的ip地址ip.dst &#x3D; 192.168.116.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="流量分析">
+<meta property="og:url" content="http://example.com/2025/06/10/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="夏饭の小饭堂">
+<meta property="og:description" content="wireshark使用方法过滤:ip过滤12345678ip.addr &#x3D; ip地址ip.addr &#x3D; 192.168.116.138 只显示ip为192.168.116.138有关的数据流ip.src &#x3D;&#x3D; 源ip地址ip.src &#x3D; 192.168.116.138 只显示源IP地址为192.168.116.138的数据流ip.dst &#x3D;&#x3D; 目的ip地址ip.dst &#x3D; 192.168.116.">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/images/image-20250609220748704.png">
+<meta property="og:image" content="http://example.com/images/image-20250609220612168.png">
+<meta property="article:published_time" content="2025-06-10T11:37:39.459Z">
+<meta property="article:modified_time" content="2025-06-10T12:08:12.807Z">
+<meta property="article:author" content="夏饭orz">
+<meta property="article:tag" content="应急响应">
+<meta property="article:tag" content="流量分析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/image-20250609220748704.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2025/06/10/流量分析/"/>
+
+
+
+
+
+  <title>流量分析 | 夏饭の小饭堂</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">夏饭の小饭堂</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">一座位于异世界的深夜食堂</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/06/10/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/neuro.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="夏饭の小饭堂">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">流量分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-06-10T19:37:39+08:00">
+                2025-06-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/" itemprop="url" rel="index">
+                    <span itemprop="name">应急响应</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="wireshark使用方法"><a href="#wireshark使用方法" class="headerlink" title="wireshark使用方法"></a>wireshark使用方法</h1><h2 id="过滤"><a href="#过滤" class="headerlink" title="过滤:"></a>过滤:</h2><h4 id="ip过滤"><a href="#ip过滤" class="headerlink" title="ip过滤"></a>ip过滤</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ip.addr = ip地址</span><br><span class="line">ip.addr = 192.168.116.138 只显示ip为192.168.116.138有关的数据流</span><br><span class="line"></span><br><span class="line">ip.src == 源ip地址</span><br><span class="line">ip.src = 192.168.116.138 只显示源IP地址为192.168.116.138的数据流</span><br><span class="line"></span><br><span class="line">ip.dst == 目的ip地址</span><br><span class="line">ip.dst = 192.168.116.138 只显示目标IP地址为192.168.116.138的数据流</span><br></pre></td></tr></table></figure>
+
+<h4 id="协议过滤"><a href="#协议过滤" class="headerlink" title="协议过滤"></a>协议过滤</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">TCP：只显示TCP协议的数据流</span><br><span class="line">HTTP：只显示HTTP协议的数据流</span><br><span class="line">ICMP：只显示ICMP协议的数据流</span><br><span class="line">ARP：只显示ARP协议的数据流</span><br><span class="line">DNS：显示DNS协议的数据流</span><br><span class="line">arp/icmp/http/ftp/dns/ip  筛选协议为arp/icmp/http/ftp/dns/ip的流量包</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">http.request.method==“GET” 显示get请求</span><br><span class="line">http.request.method==“POST”  显示POST请求</span><br><span class="line">http.request.uri contains admin  显示url中包含admin的请求</span><br><span class="line">http.request.uri==&quot;/img/logo-edu.gif&quot;  筛选HTTP请求的URL为/img/logo-edu.gif的流量包</span><br><span class="line">http.request.code==404 显示状态码为404</span><br><span class="line">http contains &quot;FLAG&quot; 请求或相应中包含特定内容</span><br><span class="line"></span><br><span class="line">eth.dst ==A0:00:00:04:C5:84 筛选目标mac地址</span><br><span class="line">eth.addr==A0:00:00:04:C5:84 筛选MAC地址</span><br></pre></td></tr></table></figure>
+
+<h4 id="端口过滤"><a href="#端口过滤" class="headerlink" title="端口过滤"></a>端口过滤</h4><p>srcport是源地址，dstport是目的地址，与tcp和udp搭配使用就可以了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tcp.port == 80 只显示80端口TCP数据流</span><br><span class="line">udp.prot == 67 只显示67端口UDP数据流</span><br><span class="line">tcp.srcport == 80 只显示源地址的80端口数据流</span><br><span class="line">tcp.dstport == 80 只显示目的地址80端口数据流</span><br><span class="line">udp.srcport == 80  筛选udp协议的源地址的80的流量包</span><br></pre></td></tr></table></figure>
+
+<p>注:都可以使用逻辑运算符</p>
+<h2 id="例"><a href="#例" class="headerlink" title="例:"></a>例:</h2><h4 id="筛选开放端口"><a href="#筛选开放端口" class="headerlink" title="筛选开放端口"></a>筛选开放端口</h4><p>[SYN, ACK]的是正常建立了链接</p>
+<p>[RST, ACK]是如果主机需要尽快关闭连接或连接超时，端口或主机不可达时发送的</p>
+<p>TCP扫描确认端口开放的标志就是返回SYN+ACK的包，所以只需要过滤SYN、ACK状态都为1的包即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ip.dst == 192.168.162.188 and tcp.connection.synack</span><br><span class="line">tcp.flags.syn==1&amp;&amp;tcp.flags.ack==1tcp.flags.syn==1&amp;&amp;tcp.flags.ack==1</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>TCP 三次握手（正常连接建立）<br>当客户端尝试连接服务器的某个端口时，典型的交互如下：</p>
+<p>客户端 → 服务器：发送 [SYN]（同步序列号，表示请求建立连接）。</p>
+<p>服务器 → 客户端：</p>
+<p>如果端口开放：返回 [SYN, ACK]（同意建立连接）。</p>
+<p>如果端口关闭：返回 [RST, ACK]（拒绝连接）。</p>
+<p>客户端 → 服务器：发送 [ACK]（确认连接，完成握手）。</p>
+<p>[FIN, ACK] (关闭连接时的确认包)</p>
+</blockquote>
+<h4 id="筛选特定文件"><a href="#筛选特定文件" class="headerlink" title="筛选特定文件"></a>筛选特定文件</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http and not http.request.uri contains &quot;.gif&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="协议简介"><a href="#协议简介" class="headerlink" title="协议简介:"></a>协议简介:</h2><p>tcp,dns之类的原始数据都是hex</p>
+<p>http是数据包,可以直接显示ascii</p>
+<p>原始数据中以0d0a0d0a为请求体&#x2F;响应体和请求头&#x2F;响应头的界限</p>
+<h1 id="常见攻击流量"><a href="#常见攻击流量" class="headerlink" title="常见攻击流量:"></a>常见攻击流量:</h1><ul>
+<li><p>蚁剑:</p>
+<ol>
+<li>请求体@ini_set(“display_errors”,”0”);@set_time_limit(0)开头</li>
+<li>响应体base64+参数名大多<code>“_0x.....=”（下划线可替换为其他）</code></li>
+</ol>
+</li>
+<li><p>冰蝎:</p>
+<ol>
+<li>AES加密 + base64编码</li>
+<li>webshell连接密码的MD5的前16位，默认连接密码是”rebeyond”(即密钥是md5(‘rebeyond’)[0:16]&#x3D;e45e329feb5d925b)</li>
+<li>3.0连接jsp的webshell的请求数据包中的content-type字段常见为application&#x2F;octet-stream,ua头会变</li>
+</ol>
+</li>
+<li><p>哥斯拉:</p>
+<ol>
+<li>在默认脚本编码的情况下，jsp会出现<code>xc、pass字符和Java反射(ClassLoader，getClass().getClassLoader())，base64加解码</code>等特征</li>
+<li><code>Cookie中有一个非常关键的特征，最后会有个分号</code>。估计后续的版本会修复</li>
+</ol>
+<p>解密请求包：</p>
+<blockquote>
+<p>URL_Decode()<br>From_Base64(‘A-Za-z0-9+&#x2F;&#x3D;’,true,false)<br>AES_Decrypt({‘option’:’UTF8’,’string’:’1710acba6220f62b’},{‘option’:’Hex’,’string’:’’},’ECB’,’Raw’,’Raw’,{‘option’:’Hex’,’string’:’’},{‘option’:’Hex’,’string’:’’})<br>Gunzip()</p>
+</blockquote>
+<p>解密响应包：</p>
+<blockquote>
+<p>Find_&#x2F;<em>Replace({‘option’:’Regex’,’string’:’B333AF03A314E0FB’},’’,true,false,true,false)<br>Find</em>&#x2F;_Replace({‘option’:’Regex’,’string’:’0F00BC7E2672E1F5’},’’,true,false,true,false)<br>From_Base64(‘A-Za-z0-9+&#x2F;&#x3D;’,true,false)<br>AES_Decrypt({‘option’:’UTF8’,’string’:’1710acba6220f62b’},{‘option’:’Hex’,’string’:’’},’ECB’,’Raw’,’Raw’,{‘option’:’Hex’,’string’:’’},{‘option’:’Hex’,’string’:’’})<br>Gunzip()</p>
+</blockquote>
+<p>解密后的命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cmdLine <span class="string">&#x27; sh -c &quot;cd &quot;/&quot;;cat /etc/os-release&quot; 2&gt;&amp;1 arg-3 2&gt;&amp;1 executableFile shexecutableArgs $ -c &quot;cd &quot;/&quot;;cat /etc/os-release&quot; 2&gt;&amp;1 arg-0 sh argsCount 4arg-1 -carg-2 cd &quot;/&quot;;cat /etc/os-release</span></span><br><span class="line"><span class="string">methodName execCommand</span></span><br></pre></td></tr></table></figure>
+
+<p>其中实际执行的是<code>cat /etc/os-release</code></p>
+</li>
+</ul>
+<h1 id="查找登录密码："><a href="#查找登录密码：" class="headerlink" title="查找登录密码："></a>查找登录密码：</h1><ul>
+<li>常用post方法</li>
+</ul>
+<blockquote>
+<p>http.request.method &#x3D;&#x3D; POST</p>
+</blockquote>
+<ul>
+<li>定位具体网页,查找200回显</li>
+</ul>
+<blockquote>
+<p>http.request.uri &#x3D;&#x3D; “xx” &amp;&amp; http.response &#x3D;&#x3D; 1</p>
+</blockquote>
+<ul>
+<li>可能在标头</li>
+<li>跳转成功会跳转302</li>
+</ul>
+<blockquote>
+<p>http contains “admin” &amp;&amp;http.request.uri &#x3D;&#x3D; “&#x2F;login.php”</p>
+</blockquote>
+<ul>
+<li>搜索关键字符串</li>
+</ul>
+<blockquote>
+<p>http contains “password”&#x2F;“Authorization”</p>
+</blockquote>
+<h1 id="端口扫描"><a href="#端口扫描" class="headerlink" title="端口扫描"></a>端口扫描</h1><h2 id="SYN扫描"><a href="#SYN扫描" class="headerlink" title="SYN扫描"></a>SYN扫描</h2><p>发送syn包，返回SA包则开放,反之则关闭：</p>
+<p><code>tcp.flags.syn == 1 and tcp.flags.ack == 0</code></p>
+<h2 id="FIN扫描"><a href="#FIN扫描" class="headerlink" title="FIN扫描"></a>FIN扫描</h2><p>发送fin包,返回RST包则关闭,反之则开放或被过滤</p>
+<p><code>tcp.flags.fin == 1</code></p>
+<h2 id="udp扫描"><a href="#udp扫描" class="headerlink" title="udp扫描"></a>udp扫描</h2><p>简单封包后直接发送,ddos常用</p>
+<p><code>UDP</code></p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他:"></a>其他:</h2><ul>
+<li>用户名 whoami-default</li>
+<li>看时间顺序</li>
+</ul>
+<blockquote>
+<p>frame.time_relative &#x2F;&#x2F;筛选相对时间<br>frame.len &#x2F;&#x2F;筛选长度</p>
+</blockquote>
+<ul>
+<li>找服务端口，看http的host标头</li>
+<li>维权找&#x2F;bin</li>
+</ul>
+<h1 id="内网扫描工具流量指纹"><a href="#内网扫描工具流量指纹" class="headerlink" title="内网扫描工具流量指纹"></a>内网扫描工具流量指纹</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Javachichi/article/details/142128840">https://blog.csdn.net/Javachichi/article/details/142128840</a></p>
+<h2 id="fscan"><a href="#fscan" class="headerlink" title="fscan"></a>fscan</h2><p>扫描特征:</p>
+<ul>
+<li><p>使用操作系统的TCP全连接,非半连接扫描</p>
+<p>即完成完整的三次握手</p>
+</li>
+</ul>
+<p><img src="/../images/image-20250609220748704.png" alt="image-20250609220748704"></p>
+<p>存活检测:</p>
+<ul>
+<li>仅使用ICMP Echo请求</li>
+<li>Echo请求无负载,类似Nmap（不携带数据）</li>
+</ul>
+<p><img src="/../images/image-20250609220612168.png" alt="image-20250609220612168"></p>
+<h2 id="goby"><a href="#goby" class="headerlink" title="goby"></a>goby</h2><p>SYN扫描特征:</p>
+<ul>
+<li>使用TCP半连接扫描,类似Nmap和Masscan</li>
+</ul>
+<p>存活检测: Goby的存活检测方法比较特别:</p>
+<ul>
+<li>使用UDP探活:发送数据包到一个不太可能开放的UDP端口,等待ICMP端口不可达响应</li>
+<li>使用固定的端口和数据payload,这给了Goby明显的特征</li>
+</ul>
+<h2 id="nmap"><a href="#nmap" class="headerlink" title="nmap"></a>nmap</h2><p>SYN扫描特征:</p>
+<ul>
+<li>TCP窗口大小固定为1024</li>
+<li>TCP选项使用固定的值:02 04 05 b4 (这是TCP选项中最短的长度)</li>
+</ul>
+<p>存活检测:</p>
+<ul>
+<li><p>ICMP Echo请求 (就是我们熟悉的ping) 特征: Nmap发送的ICMP Echo请求没有额外的数据负载</p>
+</li>
+<li><p>ICMP时间戳请求 这是另一种ICMP请求,用于获取目标系统的时间</p>
+</li>
+<li><p>ACK诱导RST 向目标发送ACK包,如果目标存活,会回复RST包</p>
+</li>
+<li><p>常见端口SYN探测 对80和443等常用端口发送SYN包,观察响应</p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/" rel="tag"># 应急响应</a>
+          
+            <a href="/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" rel="tag"># 流量分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/06/10/%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E9%A2%98%E5%9E%8B%E6%80%9D%E8%B7%AF/" rel="next" title="常见题目">
+                <i class="fa fa-chevron-left"></i> 常见题目
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2025/06/10/redis/" rel="prev" title="redis攻击手法">
+                redis攻击手法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/neuro.gif"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#wireshark%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">wireshark使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E6%BB%A4"><span class="nav-number">1.1.</span> <span class="nav-text">过滤:</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ip%E8%BF%87%E6%BB%A4"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">ip过滤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E8%BF%87%E6%BB%A4"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">协议过滤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E8%BF%87%E6%BB%A4"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">端口过滤</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%8B"><span class="nav-number">1.2.</span> <span class="nav-text">例:</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AD%9B%E9%80%89%E5%BC%80%E6%94%BE%E7%AB%AF%E5%8F%A3"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">筛选开放端口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AD%9B%E9%80%89%E7%89%B9%E5%AE%9A%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.0.2.</span> <span class="nav-text">筛选特定文件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E7%AE%80%E4%BB%8B"><span class="nav-number">1.3.</span> <span class="nav-text">协议简介:</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB%E6%B5%81%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">常见攻击流量:</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E7%99%BB%E5%BD%95%E5%AF%86%E7%A0%81%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">查找登录密码：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="nav-number">4.</span> <span class="nav-text">端口扫描</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SYN%E6%89%AB%E6%8F%8F"><span class="nav-number">4.1.</span> <span class="nav-text">SYN扫描</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FIN%E6%89%AB%E6%8F%8F"><span class="nav-number">4.2.</span> <span class="nav-text">FIN扫描</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#udp%E6%89%AB%E6%8F%8F"><span class="nav-number">4.3.</span> <span class="nav-text">udp扫描</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">4.4.</span> <span class="nav-text">其他:</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E6%89%AB%E6%8F%8F%E5%B7%A5%E5%85%B7%E6%B5%81%E9%87%8F%E6%8C%87%E7%BA%B9"><span class="nav-number">5.</span> <span class="nav-text">内网扫描工具流量指纹</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#fscan"><span class="nav-number">5.1.</span> <span class="nav-text">fscan</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#goby"><span class="nav-number">5.2.</span> <span class="nav-text">goby</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nmap"><span class="nav-number">5.3.</span> <span class="nav-text">nmap</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">夏饭orz</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
