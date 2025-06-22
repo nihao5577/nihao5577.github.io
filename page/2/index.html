@@ -408,15 +408,46 @@
                 <main class="main index-page">
             
         <article class="index-post">
-            <a class="abstract-title" href="/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">
-                <span class="abstract-title-text">py原型链污染</span>
+            <a class="abstract-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">
+                <span class="abstract-title-text">沙箱逃逸</span>
             </a>
             <div class="abstract-content">
-                简介
-污染只对类的属性起作用，对于类方法是无效的
-可以对全局属性进行污染
+                python函数
+eval(expression,[globals], [locals]) 
+执行单个表达式，会返回结果
 
-污染方法常见函数merge函数123456789101112def merge(src, dst):    # Recursive merge function    for k, v in src.items(): #遍历src的item属性，键为k，值为v        if hasattr(dst, &#x27;__getitem__&#x27;):  #检查dst对象是否有__getitem__属性，如果存在则可以将dst作为字典访问            if dst.get(k) and type(v...
+exec(expression,[globals], [locals])
+可执行多行代码，不会返回结果
+
+
+类继承链常见方法:
+
+
+方法
+属性
+
+
+
+__class__
+返回类
+
+
+__bases__
+返回基类,所有类的根基类是 object,通过 object 类可以访问所有继承自它的子类
+
+
+__subclasses__
+返回对象的所有直接子类列表
+
+
+__init__
+构造函数,初始化对象属性
+
+
+__globals__
+获取获取方法的全局变量(模块)字典
+
+...
             </div>
             <!-- read more -->
             <div class="abstract-post-meta">
@@ -427,7 +458,6 @@
                 <!-- tags -->
                     <div class="abstract-tags" >
         <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
-        <a class="post-tag" href="javascript:void(0);" data-tags="python">python</a>
 </div>
 
             </div>
@@ -570,9 +600,9 @@ lusrmgr.msc
                 </div>
                 <!-- tags -->
                     <div class="abstract-tags" >
+        <a class="post-tag" href="javascript:void(0);" data-tags="应急响应">应急响应</a>
         <a class="post-tag" href="javascript:void(0);" data-tags="windows">windows</a>
         <a class="post-tag" href="javascript:void(0);" data-tags="日志分析">日志分析</a>
-        <a class="post-tag" href="javascript:void(0);" data-tags="应急响应">应急响应</a>
 </div>
 
             </div>
@@ -701,10 +731,6 @@ lusrmgr.msc
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/PHP%20Filter%E9%93%BE%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8Eoracle%E7%9A%84%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%94%BB%E5%87%BB/">php filter链</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
             <a class="archive-post-title" href="/2025/06/22/Pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">Pickle反序列化</a>
         </li>
         <li class="archive-post-item">
@@ -713,15 +739,7 @@ lusrmgr.msc
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">文件包含&文件上传(主php)</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/sql/">sql小总结</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">沙箱逃逸</a>
+            <a class="archive-post-title" href="/2025/06/22/PHP%20Filter%E9%93%BE%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8Eoracle%E7%9A%84%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%94%BB%E5%87%BB/">php filter链</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
@@ -729,15 +747,23 @@ lusrmgr.msc
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/xpath%E6%B3%A8%E5%85%A5/">Xpath注入</a>
+            <a class="archive-post-title" href="/2025/06/22/sql/">sql小总结</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">文件包含&文件上传(主php)</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
             <a class="archive-post-title" href="/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">py原型链污染</a>
         </li>
         <li class="archive-post-item">
-            <span class="archive-post-date">06/10</span>
-            <a class="archive-post-title" href="/2025/06/10/windows-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/">不只是日志分析-windows篇</a>
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/xpath%E6%B3%A8%E5%85%A5/">Xpath注入</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">沙箱逃逸</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/10</span>
@@ -746,6 +772,10 @@ lusrmgr.msc
         <li class="archive-post-item">
             <span class="archive-post-date">06/10</span>
             <a class="archive-post-title" href="/2025/06/10/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/windows-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/">不只是日志分析-windows篇</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/10</span>
@@ -761,10 +791,6 @@ lusrmgr.msc
                 <span class="iconfont-archer">&#xe606;</span>
                 web漏洞
             </span>
-            <span class="sidebar-tag-name" data-tags="php">
-                <span class="iconfont-archer">&#xe606;</span>
-                php
-            </span>
             <span class="sidebar-tag-name" data-tags="python">
                 <span class="iconfont-archer">&#xe606;</span>
                 python
@@ -772,6 +798,14 @@ lusrmgr.msc
             <span class="sidebar-tag-name" data-tags="侧信道">
                 <span class="iconfont-archer">&#xe606;</span>
                 侧信道
+            </span>
+            <span class="sidebar-tag-name" data-tags="php">
+                <span class="iconfont-archer">&#xe606;</span>
+                php
+            </span>
+            <span class="sidebar-tag-name" data-tags="redis">
+                <span class="iconfont-archer">&#xe606;</span>
+                redis
             </span>
             <span class="sidebar-tag-name" data-tags="nodejs">
                 <span class="iconfont-archer">&#xe606;</span>
@@ -781,21 +815,9 @@ lusrmgr.msc
                 <span class="iconfont-archer">&#xe606;</span>
                 注入
             </span>
-            <span class="sidebar-tag-name" data-tags="windows">
-                <span class="iconfont-archer">&#xe606;</span>
-                windows
-            </span>
-            <span class="sidebar-tag-name" data-tags="日志分析">
-                <span class="iconfont-archer">&#xe606;</span>
-                日志分析
-            </span>
             <span class="sidebar-tag-name" data-tags="应急响应">
                 <span class="iconfont-archer">&#xe606;</span>
                 应急响应
-            </span>
-            <span class="sidebar-tag-name" data-tags="redis">
-                <span class="iconfont-archer">&#xe606;</span>
-                redis
             </span>
             <span class="sidebar-tag-name" data-tags="总结">
                 <span class="iconfont-archer">&#xe606;</span>
@@ -804,6 +826,14 @@ lusrmgr.msc
             <span class="sidebar-tag-name" data-tags="流量分析">
                 <span class="iconfont-archer">&#xe606;</span>
                 流量分析
+            </span>
+            <span class="sidebar-tag-name" data-tags="windows">
+                <span class="iconfont-archer">&#xe606;</span>
+                windows
+            </span>
+            <span class="sidebar-tag-name" data-tags="日志分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                日志分析
             </span>
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
