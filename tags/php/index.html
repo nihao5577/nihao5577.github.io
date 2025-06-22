@@ -21,7 +21,7 @@
 <meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="icon" href="/assets/taco-truck.png">
+    <link rel="icon" href="/assets/dinner.png">
     <title>夏饭の小饭堂</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
@@ -431,15 +431,16 @@
         <div class="index-post-divider"></div>
             
         <article class="index-post">
-            <a class="abstract-title" href="/2025/06/22/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">
-                <span class="abstract-title-text">php反序列化</span>
+            <a class="abstract-title" href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">
+                <span class="abstract-title-text">文件包含&amp;文件上传(主php)</span>
             </a>
             <div class="abstract-content">
-                简介：序列化&amp;反序列化：
-将数据转化成一种可逆的数据结构，方便传输
-逆向
+                文件包含常见函数：
+include&#x2F;include_once(出错发警告)
+require&#x2F;require_once(出错直接退出)可以读取文件内容或者执行代码
 
-1234567891011121314151617181920212223#常见的序列化格式//数组&lt;?php$user=array(&#x27;xiao&#x27;,&#x27;shi&#x27;,&#x27;zi&#x27;);$user=serialize($user);echo($user.PHP_EOL);print_r(unserialize($user));//a:3:&#123;i:0;s:4:&quot;xiao&quot;;i:1;s:3:&quot;shi&quot;;i:2;...
+漏洞利用：本地文件包含漏洞1234&lt;?php	$file=$_GET[&#x27;file&#x27;];	include ($file);?&gt;
+file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)file&#x3D;phpinfo.txt()file&#x3D;data:&#x2F;&#x2F;text&#x2F;p...
             </div>
             <!-- read more -->
             <div class="abstract-post-meta">
@@ -458,16 +459,15 @@
         <div class="index-post-divider"></div>
             
         <article class="index-post">
-            <a class="abstract-title" href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">
-                <span class="abstract-title-text">文件包含&amp;文件上传(主php)</span>
+            <a class="abstract-title" href="/2025/06/22/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">
+                <span class="abstract-title-text">php反序列化</span>
             </a>
             <div class="abstract-content">
-                文件包含常见函数：
-include&#x2F;include_once(出错发警告)
-require&#x2F;require_once(出错直接退出)可以读取文件内容或者执行代码
+                简介：序列化&amp;反序列化：
+将数据转化成一种可逆的数据结构，方便传输
+逆向
 
-漏洞利用：本地文件包含漏洞1234&lt;?php	$file=$_GET[&#x27;file&#x27;];	include ($file);?&gt;
-file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)file&#x3D;phpinfo.txt()file&#x3D;data:&#x2F;&#x2F;text&#x2F;p...
+1234567891011121314151617181920212223#常见的序列化格式//数组&lt;?php$user=array(&#x27;xiao&#x27;,&#x27;shi&#x27;,&#x27;zi&#x27;);$user=serialize($user);echo($user.PHP_EOL);print_r(unserialize($user));//a:3:&#123;i:0;s:4:&quot;xiao&quot;;i:1;s:3:&quot;shi&quot;;i:2;...
             </div>
             <!-- read more -->
             <div class="abstract-post-meta">
@@ -560,19 +560,7 @@ file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)fil
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/XS-Leaks/">XSleak</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
             <a class="archive-post-title" href="/2025/06/22/PHP%20Filter%E9%93%BE%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8Eoracle%E7%9A%84%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%94%BB%E5%87%BB/">php filter链</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">php反序列化</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/sql/">sql小总结</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
@@ -580,15 +568,31 @@ file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)fil
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">php反序列化</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
             <a class="archive-post-title" href="/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">py原型链污染</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/sql/">sql小总结</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/XS-Leaks/">XSleak</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">沙箱逃逸</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
             <a class="archive-post-title" href="/2025/06/22/xpath%E6%B3%A8%E5%85%A5/">Xpath注入</a>
         </li>
         <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">沙箱逃逸</a>
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/windows-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/">不只是日志分析-windows篇</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/10</span>
@@ -597,10 +601,6 @@ file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)fil
         <li class="archive-post-item">
             <span class="archive-post-date">06/10</span>
             <a class="archive-post-title" href="/2025/06/10/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/10</span>
-            <a class="archive-post-title" href="/2025/06/10/windows-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/">不只是日志分析-windows篇</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/10</span>
@@ -620,25 +620,33 @@ file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)fil
                 <span class="iconfont-archer">&#xe606;</span>
                 python
             </span>
-            <span class="sidebar-tag-name" data-tags="侧信道">
-                <span class="iconfont-archer">&#xe606;</span>
-                侧信道
-            </span>
             <span class="sidebar-tag-name" data-tags="php">
                 <span class="iconfont-archer">&#xe606;</span>
                 php
-            </span>
-            <span class="sidebar-tag-name" data-tags="redis">
-                <span class="iconfont-archer">&#xe606;</span>
-                redis
             </span>
             <span class="sidebar-tag-name" data-tags="nodejs">
                 <span class="iconfont-archer">&#xe606;</span>
                 nodejs
             </span>
+            <span class="sidebar-tag-name" data-tags="redis">
+                <span class="iconfont-archer">&#xe606;</span>
+                redis
+            </span>
             <span class="sidebar-tag-name" data-tags="注入">
                 <span class="iconfont-archer">&#xe606;</span>
                 注入
+            </span>
+            <span class="sidebar-tag-name" data-tags="侧信道">
+                <span class="iconfont-archer">&#xe606;</span>
+                侧信道
+            </span>
+            <span class="sidebar-tag-name" data-tags="windows">
+                <span class="iconfont-archer">&#xe606;</span>
+                windows
+            </span>
+            <span class="sidebar-tag-name" data-tags="日志分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                日志分析
             </span>
             <span class="sidebar-tag-name" data-tags="应急响应">
                 <span class="iconfont-archer">&#xe606;</span>
@@ -651,14 +659,6 @@ file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)fil
             <span class="sidebar-tag-name" data-tags="流量分析">
                 <span class="iconfont-archer">&#xe606;</span>
                 流量分析
-            </span>
-            <span class="sidebar-tag-name" data-tags="windows">
-                <span class="iconfont-archer">&#xe606;</span>
-                windows
-            </span>
-            <span class="sidebar-tag-name" data-tags="日志分析">
-                <span class="iconfont-archer">&#xe606;</span>
-                日志分析
             </span>
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

@@ -21,7 +21,7 @@
 <meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="icon" href="/assets/taco-truck.png">
+    <link rel="icon" href="/assets/dinner.png">
     <title>夏饭の小饭堂</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
@@ -492,40 +492,6 @@ prbably_public_bits
         <div class="index-post-divider"></div>
             
         <article class="index-post">
-            <a class="abstract-title" href="/2025/06/22/XS-Leaks/">
-                <span class="abstract-title-text">XSleak</span>
-            </a>
-            <div class="abstract-content">
-                原理：网页前端侧信道攻击，常见侧信道如下:
-
-浏览器的 api (e.g. Frame Counting and Timing Attacks)
-浏览器的实现细节和 bugs (e.g. Connection Pooling and typeMustMatch)
-硬件 bugs (e.g. Speculative Execution Attacks 4)
-
-利用条件：
-模糊查找
-受害者可执行js代码
-二元结果
-
-思路：确定要泄露的信息→信息可以通过模糊查找→正确&#x2F;错误可以被判断→可以写出泄露&amp;外带脚本→有bot&#x2F;第三方访问目标页面(受害者可执行js代码)→触发...
-            </div>
-            <!-- read more -->
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2025/06/22">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2025/06/22</span>
-                </div>
-                <!-- tags -->
-                    <div class="abstract-tags" >
-        <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
-        <a class="post-tag" href="javascript:void(0);" data-tags="侧信道">侧信道</a>
-</div>
-
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-            
-        <article class="index-post">
             <a class="abstract-title" href="/2025/06/22/PHP%20Filter%E9%93%BE%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8Eoracle%E7%9A%84%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%94%BB%E5%87%BB/">
                 <span class="abstract-title-text">php filter链</span>
             </a>
@@ -538,6 +504,34 @@ prbably_public_bits
 确定首字节是否是十六进制字符（UTF8.UCS-4LE &amp; dechunk）
 
 12345678910111213141516&lt;?php$size_bomb = &quot;&quot;;for ($i = 1; $i &lt;= 13; $i++) &#123;    $size_bomb .= &quot;con...
+            </div>
+            <!-- read more -->
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2025/06/22">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2025/06/22</span>
+                </div>
+                <!-- tags -->
+                    <div class="abstract-tags" >
+        <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="php">php</a>
+</div>
+
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+            
+        <article class="index-post">
+            <a class="abstract-title" href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">
+                <span class="abstract-title-text">文件包含&amp;文件上传(主php)</span>
+            </a>
+            <div class="abstract-content">
+                文件包含常见函数：
+include&#x2F;include_once(出错发警告)
+require&#x2F;require_once(出错直接退出)可以读取文件内容或者执行代码
+
+漏洞利用：本地文件包含漏洞1234&lt;?php	$file=$_GET[&#x27;file&#x27;];	include ($file);?&gt;
+file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)file&#x3D;phpinfo.txt()file&#x3D;data:&#x2F;&#x2F;text&#x2F;p...
             </div>
             <!-- read more -->
             <div class="abstract-post-meta">
@@ -576,6 +570,33 @@ prbably_public_bits
                     <div class="abstract-tags" >
         <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
         <a class="post-tag" href="javascript:void(0);" data-tags="php">php</a>
+</div>
+
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+            
+        <article class="index-post">
+            <a class="abstract-title" href="/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">
+                <span class="abstract-title-text">py原型链污染</span>
+            </a>
+            <div class="abstract-content">
+                简介
+污染只对类的属性起作用，对于类方法是无效的
+可以对全局属性进行污染
+
+污染方法常见函数merge函数123456789101112def merge(src, dst):    # Recursive merge function    for k, v in src.items(): #遍历src的item属性，键为k，值为v        if hasattr(dst, &#x27;__getitem__&#x27;):  #检查dst对象是否有__getitem__属性，如果存在则可以将dst作为字典访问            if dst.get(k) and type(v...
+            </div>
+            <!-- read more -->
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2025/06/22">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2025/06/22</span>
+                </div>
+                <!-- tags -->
+                    <div class="abstract-tags" >
+        <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="python">python</a>
 </div>
 
             </div>
@@ -654,16 +675,22 @@ session_user()
         <div class="index-post-divider"></div>
             
         <article class="index-post">
-            <a class="abstract-title" href="/2025/06/22/php%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB&%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">
-                <span class="abstract-title-text">文件包含&amp;文件上传(主php)</span>
+            <a class="abstract-title" href="/2025/06/22/XS-Leaks/">
+                <span class="abstract-title-text">XSleak</span>
             </a>
             <div class="abstract-content">
-                文件包含常见函数：
-include&#x2F;include_once(出错发警告)
-require&#x2F;require_once(出错直接退出)可以读取文件内容或者执行代码
+                原理：网页前端侧信道攻击，常见侧信道如下:
 
-漏洞利用：本地文件包含漏洞1234&lt;?php	$file=$_GET[&#x27;file&#x27;];	include ($file);?&gt;
-file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)file&#x3D;phpinfo.txt()file&#x3D;data:&#x2F;&#x2F;text&#x2F;p...
+浏览器的 api (e.g. Frame Counting and Timing Attacks)
+浏览器的实现细节和 bugs (e.g. Connection Pooling and typeMustMatch)
+硬件 bugs (e.g. Speculative Execution Attacks 4)
+
+利用条件：
+模糊查找
+受害者可执行js代码
+二元结果
+
+思路：确定要泄露的信息→信息可以通过模糊查找→正确&#x2F;错误可以被判断→可以写出泄露&amp;外带脚本→有bot&#x2F;第三方访问目标页面(受害者可执行js代码)→触发...
             </div>
             <!-- read more -->
             <div class="abstract-post-meta">
@@ -674,7 +701,7 @@ file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)fil
                 <!-- tags -->
                     <div class="abstract-tags" >
         <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
-        <a class="post-tag" href="javascript:void(0);" data-tags="php">php</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="侧信道">侧信道</a>
 </div>
 
             </div>
@@ -682,15 +709,46 @@ file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)fil
         <div class="index-post-divider"></div>
             
         <article class="index-post">
-            <a class="abstract-title" href="/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">
-                <span class="abstract-title-text">py原型链污染</span>
+            <a class="abstract-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">
+                <span class="abstract-title-text">沙箱逃逸</span>
             </a>
             <div class="abstract-content">
-                简介
-污染只对类的属性起作用，对于类方法是无效的
-可以对全局属性进行污染
+                python函数
+eval(expression,[globals], [locals]) 
+执行单个表达式，会返回结果
 
-污染方法常见函数merge函数123456789101112def merge(src, dst):    # Recursive merge function    for k, v in src.items(): #遍历src的item属性，键为k，值为v        if hasattr(dst, &#x27;__getitem__&#x27;):  #检查dst对象是否有__getitem__属性，如果存在则可以将dst作为字典访问            if dst.get(k) and type(v...
+exec(expression,[globals], [locals])
+可执行多行代码，不会返回结果
+
+
+类继承链常见方法:
+
+
+方法
+属性
+
+
+
+__class__
+返回类
+
+
+__bases__
+返回基类,所有类的根基类是 object,通过 object 类可以访问所有继承自它的子类
+
+
+__subclasses__
+返回对象的所有直接子类列表
+
+
+__init__
+构造函数,初始化对象属性
+
+
+__globals__
+获取获取方法的全局变量(模块)字典
+
+...
             </div>
             <!-- read more -->
             <div class="abstract-post-meta">
@@ -701,91 +759,6 @@ file&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd(获取文件内容)fil
                 <!-- tags -->
                     <div class="abstract-tags" >
         <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
-        <a class="post-tag" href="javascript:void(0);" data-tags="python">python</a>
-</div>
-
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-            
-        <article class="index-post">
-            <a class="abstract-title" href="/2025/06/22/xpath%E6%B3%A8%E5%85%A5/">
-                <span class="abstract-title-text">Xpath注入</span>
-            </a>
-            <div class="abstract-content">
-                原理当XML文件被用于用户验证之类，且对用户输入没有限制，就可以注入访问XML文档
-语法Xpath中XML文档被当作节点树对待，通过路径表达式来选取节点
-
-
-
-表达式
-描述
-
-
-
-
-nodename
-选取此节点的所有子节点
-
-
-
-&#x2F;
-从根节点选取
-
-
-
-&#x2F;&#x2F;
-从匹配选择的当前节点选择文档中的节点，而不考虑它们的位置
-
-
-
-.
-选取当前节点
-
-
-
-..
-选取当前节点的父节点
-
-
-
-@
-选取属性或　@*：匹配任何属性节点
-
-
-
-*
-匹配任何元素节点
-
-
-
-@*
-匹配任何属性节点
-
-
-
-node()
-匹配任何类型的节点
-
-
-
-|
-计算两个节点集
-
-
-
-or&#x2...
-            </div>
-            <!-- read more -->
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2025/06/22">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2025/06/22</span>
-                </div>
-                <!-- tags -->
-                    <div class="abstract-tags" >
-        <a class="post-tag" href="javascript:void(0);" data-tags="web漏洞">web漏洞</a>
-        <a class="post-tag" href="javascript:void(0);" data-tags="注入">注入</a>
 </div>
 
             </div>
@@ -891,19 +864,7 @@ or&#x2...
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/XS-Leaks/">XSleak</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
             <a class="archive-post-title" href="/2025/06/22/PHP%20Filter%E9%93%BE%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8Eoracle%E7%9A%84%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%94%BB%E5%87%BB/">php filter链</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">php反序列化</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/sql/">sql小总结</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
@@ -911,15 +872,31 @@ or&#x2...
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">php反序列化</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
             <a class="archive-post-title" href="/2025/06/22/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">py原型链污染</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/sql/">sql小总结</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/XS-Leaks/">XSleak</a>
+        </li>
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/22</span>
+            <a class="archive-post-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">沙箱逃逸</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/22</span>
             <a class="archive-post-title" href="/2025/06/22/xpath%E6%B3%A8%E5%85%A5/">Xpath注入</a>
         </li>
         <li class="archive-post-item">
-            <span class="archive-post-date">06/22</span>
-            <a class="archive-post-title" href="/2025/06/22/%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/">沙箱逃逸</a>
+            <span class="archive-post-date">06/10</span>
+            <a class="archive-post-title" href="/2025/06/10/windows-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/">不只是日志分析-windows篇</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/10</span>
@@ -928,10 +905,6 @@ or&#x2...
         <li class="archive-post-item">
             <span class="archive-post-date">06/10</span>
             <a class="archive-post-title" href="/2025/06/10/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">流量分析</a>
-        </li>
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/10</span>
-            <a class="archive-post-title" href="/2025/06/10/windows-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90/">不只是日志分析-windows篇</a>
         </li>
         <li class="archive-post-item">
             <span class="archive-post-date">06/10</span>
@@ -951,25 +924,33 @@ or&#x2...
                 <span class="iconfont-archer">&#xe606;</span>
                 python
             </span>
-            <span class="sidebar-tag-name" data-tags="侧信道">
-                <span class="iconfont-archer">&#xe606;</span>
-                侧信道
-            </span>
             <span class="sidebar-tag-name" data-tags="php">
                 <span class="iconfont-archer">&#xe606;</span>
                 php
-            </span>
-            <span class="sidebar-tag-name" data-tags="redis">
-                <span class="iconfont-archer">&#xe606;</span>
-                redis
             </span>
             <span class="sidebar-tag-name" data-tags="nodejs">
                 <span class="iconfont-archer">&#xe606;</span>
                 nodejs
             </span>
+            <span class="sidebar-tag-name" data-tags="redis">
+                <span class="iconfont-archer">&#xe606;</span>
+                redis
+            </span>
             <span class="sidebar-tag-name" data-tags="注入">
                 <span class="iconfont-archer">&#xe606;</span>
                 注入
+            </span>
+            <span class="sidebar-tag-name" data-tags="侧信道">
+                <span class="iconfont-archer">&#xe606;</span>
+                侧信道
+            </span>
+            <span class="sidebar-tag-name" data-tags="windows">
+                <span class="iconfont-archer">&#xe606;</span>
+                windows
+            </span>
+            <span class="sidebar-tag-name" data-tags="日志分析">
+                <span class="iconfont-archer">&#xe606;</span>
+                日志分析
             </span>
             <span class="sidebar-tag-name" data-tags="应急响应">
                 <span class="iconfont-archer">&#xe606;</span>
@@ -982,14 +963,6 @@ or&#x2...
             <span class="sidebar-tag-name" data-tags="流量分析">
                 <span class="iconfont-archer">&#xe606;</span>
                 流量分析
-            </span>
-            <span class="sidebar-tag-name" data-tags="windows">
-                <span class="iconfont-archer">&#xe606;</span>
-                windows
-            </span>
-            <span class="sidebar-tag-name" data-tags="日志分析">
-                <span class="iconfont-archer">&#xe606;</span>
-                日志分析
             </span>
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
